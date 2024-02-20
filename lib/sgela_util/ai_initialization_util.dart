@@ -36,9 +36,12 @@ class AiInitializationUtil {
 
   static Future<Gemini> initGemini() async {
     pp('$mx ............. _initGemini ....');
+
+    //POST https://{REGION}-aiplatform.googleapis.com/v1/projects/{PROJECT_ID}/locations/{REGION}/publishers/google/models/gemini-pro:streamGenerateContent
     var geminiAPIKey = ChatbotEnvironment.getGeminiAPIKey();
     var gem = Gemini.init(
         apiKey: geminiAPIKey,
+        // baseURL: ChatbotEnvironment.getGeminiBaseUrl() ,
         generationConfig:
             GenerationConfig(temperature: 0.1, maxOutputTokens: 1000),
         enableDebugging: ChatbotEnvironment.isChatDebuggingEnabled());
@@ -48,13 +51,13 @@ class AiInitializationUtil {
       // pp('$mx 🍎🍎Gemini AI model: ${geminiModel.description} 🔵🔵 \n${geminiModel.toJson()} 🍎🍎');
       var geminiModels = await Gemini.instance.listModels();
       for (var model in geminiModels) {
-        pp('$mx Gemini AI model: ${model.displayName} 🔵🔵name: ${model.name} 🔵🔵 ${model.description}');
+        pp('$mx 🍎🍎🍎🍎Gemini AI model: ${model.displayName} 🔵🔵name: ${model.name} 🔵🔵 ${model.description}');
       }
     } catch (e, s) {
       pp('$mx $e $s');
     }
 
-    pp('$mx Gemini AI API has been initialized!! \n$mx'
+    pp('$mx 🍎🍎🍎🍎Gemini AI API has been initialized!! \n$mx'
         ' 🔵🔵 Gemini apiKey: $geminiAPIKey 🔵🔵 ');
     return gem;
   }

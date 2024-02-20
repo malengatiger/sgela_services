@@ -14,7 +14,26 @@ class ChatbotEnvironment {
 
   //TODO - refresh url links after Skunk deployment
 
+  //POST
 
+  static String getGeminiBaseUrl() {
+    var url = 'https://${getRegion()}-aiplatform.googleapis.com/v1/projects/${getProject()}'
+        '/locations/${getRegion()}/publishers/google/models';
+    pp('BASE URL: $url');
+    return url;
+  }
+  static String getGeminiVisionBaseUrl() {
+    var url =  'https://${getRegion()}-aiplatform.googleapis.com/v1/projects/${getProject()}'
+        '/locations/${getRegion()}/publishers/google/models/${getGeminiVisionModel()}:streamGenerateContent';
+    pp('BASE URL: $url');
+    return url;
+  }
+  static String getRegion() {
+    return 'us-east4';
+  }
+  static String getProject() {
+    return 'sgela-ai-33';
+  }
 
   //💙Chatbot Backend
   static const _devGeminiUrl = 'http://${isFibreDown? _ipFibreDown: _ipNormal}:3010/';
