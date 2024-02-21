@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:sgela_services/data/org_user.dart';
 
 import '../data/branding.dart';
 import '../data/city.dart';
@@ -367,6 +368,24 @@ class FirestoreService {
       prefs.saveUser(list.first);
       return list.first;
     }
+    return null;
+  }
+  Future<OrgUser?> getOrgUser(String firebaseUserId) async {
+    pp('$mm ... getSgelaUser from Firestore ... firebaseUserId: $firebaseUserId');
+    List<OrgUser> list = [];
+    var qs = await firebaseFirestore
+        .collection('OrgUser')
+        .where('firebaseUserId', isEqualTo: firebaseUserId)
+        .get();
+    for (var snap in qs.docs) {
+      list.add(OrgUser.fromJson(snap.data()));
+    }
+    pp('$mm ... users found: ${list.length}');
+
+    // if (list.isNotEmpty) {
+    //   prefs.saveUser(list.first);
+    //   return list.first;
+    // }
     return null;
   }
 

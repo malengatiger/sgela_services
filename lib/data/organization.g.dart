@@ -7,19 +7,28 @@ part of 'organization.dart';
 // **************************************************************************
 
 Organization _$OrganizationFromJson(Map<String, dynamic> json) => Organization(
-      json['name'] as String?,
-      json['email'] as String?,
-      json['cellphone'] as String?,
-      json['id'] as int?,
-      json['country'] == null
+      name: json['name'] as String?,
+      email: json['email'] as String?,
+      cellphone: json['cellphone'] as String?,
+      id: json['id'] as int?,
+      date: json['date'] as String?,
+      country: json['country'] == null
           ? null
           : Country.fromJson(json['country'] as Map<String, dynamic>),
-      json['city'] == null
+      city: json['city'] == null
           ? null
           : City.fromJson(json['city'] as Map<String, dynamic>),
-      json['logoUrl'] as String?,
-      json['splashUrl'] as String?,
-    );
+      adminUser: json['adminUser'] == null
+          ? null
+          : OrgUser.fromJson(json['adminUser'] as Map<String, dynamic>),
+      logoUrl: json['logoUrl'] as String?,
+      splashUrl: json['splashUrl'] as String?,
+      activeFlag: json['activeFlag'] as bool?,
+      tagLine: json['tagLine'] as String?,
+    )
+      ..websiteUrl = json['websiteUrl'] as String?
+      ..brandingElapsedTimeInSeconds =
+          json['brandingElapsedTimeInSeconds'] as int?;
 
 Map<String, dynamic> _$OrganizationToJson(Organization instance) =>
     <String, dynamic>{
@@ -29,6 +38,12 @@ Map<String, dynamic> _$OrganizationToJson(Organization instance) =>
       'id': instance.id,
       'country': instance.country,
       'city': instance.city,
+      'adminUser': instance.adminUser,
       'logoUrl': instance.logoUrl,
       'splashUrl': instance.splashUrl,
+      'tagLine': instance.tagLine,
+      'websiteUrl': instance.websiteUrl,
+      'date': instance.date,
+      'brandingElapsedTimeInSeconds': instance.brandingElapsedTimeInSeconds,
+      'activeFlag': instance.activeFlag,
     };

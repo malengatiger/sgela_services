@@ -8,7 +8,7 @@ import 'package:sgela_services/sgela_util/prefs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
-import '../repositories/repository.dart';
+import '../repositories/basic_repository.dart';
 import '../services/accounting_service.dart';
 import '../services/agriculture_service.dart';
 import '../services/auth_service.dart';
@@ -35,7 +35,7 @@ Future<void> registerServices(FirebaseFirestore firebaseFirestore, FirebaseAuth 
   await lds.init();
   Dio dio = Dio();
   var dioUtil = DioUtil(dio, lds);
-  var repository = Repository(dioUtil, lds, dio);
+  var repository = BasicRepository(dioUtil, lds, dio);
   var prefs = Prefs(await SharedPreferences.getInstance());
   var dlc = DarkLightControl(prefs);
   var cWatcher = ColorWatcher(dlc, prefs);
@@ -48,7 +48,7 @@ Future<void> registerServices(FirebaseFirestore firebaseFirestore, FirebaseAuth 
       .registerLazySingleton<AgricultureService>(() => AgricultureService());
   GetIt.instance.registerLazySingleton<PhysicsService>(() => PhysicsService());
   GetIt.instance
-      .registerLazySingleton<Repository>(() => repository);
+      .registerLazySingleton<BasicRepository>(() => repository);
   GetIt.instance
       .registerLazySingleton<AccountingService>(() => AccountingService());
   GetIt.instance.registerLazySingleton<LocalDataService>(() => lds);

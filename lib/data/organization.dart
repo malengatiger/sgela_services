@@ -2,8 +2,10 @@ import 'package:json_annotation/json_annotation.dart';
 
 import 'city.dart';
 import 'country.dart';
+import 'org_user.dart';
 
 part 'organization.g.dart';
+
 @JsonSerializable()
 class Organization {
   String? name, email, cellphone;
@@ -11,11 +13,23 @@ class Organization {
   Country? country;
   City? city;
 
-  String? logoUrl, splashUrl;
+  OrgUser? adminUser;
+  String? logoUrl, splashUrl, tagLine, websiteUrl, date;
+  int? brandingElapsedTimeInSeconds;
+  bool? activeFlag;
 
-
-  Organization(this.name, this.email, this.cellphone, this.id, this.country,
-      this.city, this.logoUrl, this.splashUrl);
+  Organization({required this.name,
+    required this.email,
+    required this.cellphone,
+    required this.id,
+    required this.date,
+    required this.country,
+    this.city,
+    required this.adminUser,
+    required this.logoUrl,
+    required this.splashUrl,
+    this.activeFlag,
+    required this.tagLine});
 
   factory Organization.fromJson(Map<String, dynamic> json) =>
       _$OrganizationFromJson(json);

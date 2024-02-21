@@ -13,7 +13,7 @@ import '../sgela_util/dio_util.dart';
 import '../sgela_util/environment.dart';
 import '../sgela_util/functions.dart';
 
-class Repository {
+class BasicRepository {
   final DioUtil dioUtil;
 
   final Dio dio;
@@ -21,7 +21,7 @@ class Repository {
 
   static const mm = '💦💦💦💦 Repository 💦';
 
-  Repository(this.dioUtil, this.localDataService, this.dio);
+  BasicRepository(this.dioUtil, this.localDataService, this.dio);
 
   Future<Organization?> getSgelaOrganization() async {
 
