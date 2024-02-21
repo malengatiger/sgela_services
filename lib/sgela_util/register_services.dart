@@ -74,7 +74,6 @@ Future<void> registerServices(FirebaseFirestore firebaseFirestore, FirebaseAuth 
   // );
   var firestoreService = FirestoreService(prefs,
       cWatcher, FirebaseFirestore.instance, lds);
-  pp('$mm registerServices: GetIt has registered  🔵🔵FirestoreService: $firestoreService');
   var country =await firestoreService.getLocalCountry();
   if (country != null) {
     pp('$mm local country: ${country.toJson()}');

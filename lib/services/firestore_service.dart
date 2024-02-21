@@ -34,7 +34,6 @@ class FirestoreService {
 
   FirestoreService(this.prefs, this.colorWatcher, this.firebaseFirestore,
       this.localDataService) {
-    pp('$mm ... FirestoreService constructor ...');
     // init();
   }
 
@@ -249,14 +248,13 @@ class FirestoreService {
 
   Future<City?> _getLocalCity(int countryId, Placemark place) async {
     if (cities.isEmpty) {
-      pp('$mm ... getting country cities');
       cities = await getCities(countryId);
     }
 
     pp('_getLocalCity looking for city: ${place.toJson()} in ${cities.length} cities');
 
     for (var city in cities) {
-      pp('$mm checking city: ${city.name}');
+      // pp('$mm checking city: ${city.name}');
       if (place.locality != null) {
         if (city.name!.contains(place.locality!)) {
           _localCity = city;
@@ -411,12 +409,10 @@ class FirestoreService {
   }
 
   Future<List<City>> getCities(int countryId) async {
-    pp('$mm ... get cities from Firestore ... countryId: $countryId');
     var qs = await firebaseFirestore
         .collection('City')
         .where('countryId', isEqualTo: countryId)
         .get();
-    pp('$mm ... getCities found: ${qs.size} cities');
 
     cities.clear();
     for (var snap in qs.docs) {
