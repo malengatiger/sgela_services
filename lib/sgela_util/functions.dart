@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'dart:ui';
 
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:logger/logger.dart';
@@ -11,7 +12,8 @@ Logger logger = Logger();
 void pp(dynamic msg) {
    // defaults to Level.INFO
 
-  logger.d(msg, time: DateTime.now());
+  print('${DateTime.now().toIso8601String()} $msg');
+  //logger.d(msg, time: DateTime.now());
   // var logger = Logger(
   //   printer: PrettyPrinter(
   //       methodCount: 2, // Number of method calls to be displayed
