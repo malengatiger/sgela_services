@@ -369,7 +369,7 @@ class FirestoreService {
     return null;
   }
   Future<OrgUser?> getOrgUser(String firebaseUserId) async {
-    pp('$mm ... getSgelaUser from Firestore ... firebaseUserId: $firebaseUserId');
+    pp('$mm ... getOrgUser from Firestore ... firebaseUserId: $firebaseUserId');
     List<OrgUser> list = [];
     var qs = await firebaseFirestore
         .collection('OrgUser')
@@ -386,7 +386,24 @@ class FirestoreService {
     // }
     return null;
   }
+  Future<Organization?> getOrganizationByAdminUser(String firebaseUserId) async {
+    pp('$mm ... getSgelaUser from Firestore ... firebaseUserId: $firebaseUserId');
+    List<Organization> list = [];
+    var qs = await firebaseFirestore
+        .collection('Organization')
+        .where('adminUser.firebaseUserId', isEqualTo: firebaseUserId)
+        .get();
+    for (var snap in qs.docs) {
+      list.add(Organization.fromJson(snap.data()));
+    }
+    pp('$mm ... admin organization found: ${list.length}, should be always just 1');
 
+    if (list.isNotEmpty) {
+      prefs.saveOrganization(list.first);
+      return list.first;
+    }
+    return null;
+  }
   Future<Sponsoree?> getSponsoree(String firebaseUserId) async {
     pp('$mm ... getSponsoree from Firestore ... firebaseUserId: $firebaseUserId');
     List<Sponsoree> list = [];
@@ -407,6 +424,8 @@ class FirestoreService {
     }
     return null;
   }
+
+
 
   Future<List<City>> getCities(int countryId) async {
     var qs = await firebaseFirestore

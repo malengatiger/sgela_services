@@ -85,6 +85,8 @@ dependencies:
   flutter_download_manager: ^0.5.5
   logger: ^2.0.2+1
   pay: ^1.1.2
+  oauth2_client: ^3.2.2
+#  package_info_plus: ^5.0.1
 
 
 
