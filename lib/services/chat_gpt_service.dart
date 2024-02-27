@@ -33,18 +33,20 @@ class ChatGptService {
 // Listen to the stream.
     var sb = StringBuffer();
 
-    chatStream.listen(
-          (streamChatCompletion) {
-        final content = streamChatCompletion.choices.first.delta.content;
-        content?.forEach((c) {
-          sb.write(c.text);
-        });
-      },
-      onDone: () {
-        pp("\n\n$mx ............. we are done!");
-        pp('$mx ${sb.toString()}');
-      },
-    );
+    // chatStream.listen(
+    //       (streamChatCompletion) {
+    //     final content = streamChatCompletion.choices.first.delta.content;
+    //     content?.forEach((c) {
+    //       if (c.text != null) {
+    //         sb.write(c.text!);
+    //       }
+    //     });
+    //   },
+    //   onDone: () {
+    //     pp("\n\n$mx ............. we are done!");
+    //     pp('$mx ${sb.toString()}');
+    //   },
+    // );
   }
   Future sendCompletion(String prompt) async {
     try {
