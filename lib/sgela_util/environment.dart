@@ -80,6 +80,15 @@ class ChatbotEnvironment {
   static String cpart1 = 'DaoQn8ZlwhyQtW9RMHoeT3Blbk';
   static String cpart2 = 'FJLF9kBDWPHOCbfbm3V0rT';
   static String cpart0 = 'sk-';
+
+  //
+  static String mpart1 = 'jAiKDeg2CqCqc';
+  static String mpart2 = 'D3a1Fjrdo';
+  static String mpart0 = 'TOSoIRQoZ5';
+
+  static String getMistralAPIKey() {
+    return '$mpart0$mpart1$mpart2';
+  }
   static String getGeminiAPIKey()  {
     return '$part0$part1$part2';
 

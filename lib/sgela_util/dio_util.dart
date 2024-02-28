@@ -45,11 +45,10 @@ class DioUtil {
         'mimeType': 'image/png',
         'files': mFiles,
       });
-      var url = '${ChatbotEnvironment.getGeminiUrl()}textImage/countGeminiTokens';
+      var url =
+          '${ChatbotEnvironment.getGeminiUrl()}textImage/countGeminiTokens';
       pp('$mm ..... sending url: $url');
-      final response = await dio.post(
-          url,
-          data: formData);
+      final response = await dio.post(url, data: formData);
       pp('$mm response: ${response.statusCode} data:${response.data}');
       return response.data;
     } catch (e, s) {
@@ -58,12 +57,37 @@ class DioUtil {
     throw Exception('👿👿👿Failed to send tokensUsed');
   }
 
+  Future<dynamic> sendGetRequestWithHeaders(
+      {required String path,
+      required Map<String, dynamic> queryParameters,
+      required dynamic headers}) async {
+
+    pp('$mm Dio sendGetRequestWithHeaders ...: 🍎🍎🍎 path: $path 🍎🍎');
+    try {
+      Response response;
+      // The below request is the same as above.
+      response = await dio.get(
+        path,
+        queryParameters: queryParameters,
+        options: Options(headers: headers, responseType: ResponseType.json),
+      );
+
+      pp('$mm Dio network response: 🥬🥬🥬🥬🥬🥬 status code: ${response.statusCode}');
+      return response.data;
+    } catch (e) {
+      pp('$mm Dio network response: 👿👿👿👿 ERROR: $e');
+      pp(e);
+      rethrow;
+    }
+  }
+
   Future<dynamic> sendGetRequest(
       String path, Map<String, dynamic> queryParameters) async {
     pp('$mm Dio starting ...: 🍎🍎🍎 path: $path 🍎🍎');
     try {
       Response response;
       // The below request is the same as above.
+
       response = await dio.get(
         path,
         queryParameters: queryParameters,

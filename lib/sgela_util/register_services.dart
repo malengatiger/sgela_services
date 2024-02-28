@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dart_mistral_api/dart_mistral_api.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:get_it/get_it.dart';
+import 'package:sgela_services/services/mistral_client_service.dart';
 import 'package:sgela_services/sgela_util/prefs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,7 +25,7 @@ import '../services/physics_service.dart';
 import '../services/skunk_service.dart';
 import '../services/you_tube_service.dart';
 import 'dark_light_control.dart';
-import 'dio_util.dart';
+import 'dio_util.dart' as di;
 import 'environment.dart';
 import 'functions.dart';
 
@@ -34,12 +36,16 @@ Future<void> registerServices(FirebaseFirestore firebaseFirestore, FirebaseAuth 
   var lds = LocalDataService();
   await lds.init();
   Dio dio = Dio();
-  var dioUtil = DioUtil(dio, lds);
+  var dioUtil = di.DioUtil(dio, lds);
   var repository = BasicRepository(dioUtil, lds, dio);
   var prefs = Prefs(await SharedPreferences.getInstance());
   var dlc = DarkLightControl(prefs);
   var cWatcher = ColorWatcher(dlc, prefs);
-  
+
+  var mistralService = MistralService(ChatbotEnvironment.getMistralAPIKey());
+  GetIt.instance.registerLazySingleton<MistralClientService>(
+          () => MistralClientService(mistralService));
+
   GetIt.instance.registerLazySingleton<BusyStreamService>(
           () => BusyStreamService());
   GetIt.instance.registerLazySingleton<MathService>(() => MathService());
@@ -65,7 +71,7 @@ Future<void> registerServices(FirebaseFirestore firebaseFirestore, FirebaseAuth 
           () => gemini);
   GetIt.instance.registerLazySingleton<ChatGptService>(
           () => ChatGptService());
-  GetIt.instance.registerLazySingleton<DioUtil>(
+  GetIt.instance.registerLazySingleton<di.DioUtil>(
           () => dioUtil);
   //
   // var app = await Firebase.initializeApp(

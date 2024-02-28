@@ -12,4 +12,7 @@
     <orderEntry type="library" name="Dart SDK" level="project" />
     <orderEntry type="library" name="Dart Packages" level="project" />
   </component>
+  <component name="SonarLintModuleSettings">
+    <option name="uniqueId" value="ae2d9cdb-b71a-49c0-801c-e2fe2bd9d8c2" />
+  </component>
 </module>
