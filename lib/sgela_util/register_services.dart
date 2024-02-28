@@ -95,4 +95,10 @@ Future<void> registerServices(FirebaseFirestore firebaseFirestore, FirebaseAuth 
 
   pp('$mm : GetIt has registered 17 services.  🔵🔵 Cool!! 🍎🍎🍎');
 
+  try {
+    mistralService.listModels(debug: true);
+  } catch (e,s) {
+    pp('$mm ERROR: $e - $s');
+  }
+
 }
