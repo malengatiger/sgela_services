@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dart_mistral_api/dart_mistral_api.dart';
+import 'package:mistral_sgela_ai/mistral_sgela_ai.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:get_it/get_it.dart';
 import 'package:sgela_services/services/mistral_client_service.dart';
@@ -43,9 +42,9 @@ Future<void> registerServices(FirebaseFirestore firebaseFirestore, FirebaseAuth 
   var cWatcher = ColorWatcher(dlc, prefs);
 
   var mistralService = MistralService(ChatbotEnvironment.getMistralAPIKey());
-  GetIt.instance.registerLazySingleton<MistralClientService>(
-          () => MistralClientService(mistralService));
-
+  GetIt.instance.registerLazySingleton<MistralServiceClient>(
+          () => MistralServiceClient(mistralService));
+  pp('$mm ... MistralServiceClient registered lazy! key: ${ChatbotEnvironment.getMistralAPIKey()}');
   GetIt.instance.registerLazySingleton<BusyStreamService>(
           () => BusyStreamService());
   GetIt.instance.registerLazySingleton<MathService>(() => MathService());
@@ -93,7 +92,7 @@ Future<void> registerServices(FirebaseFirestore firebaseFirestore, FirebaseAuth 
   GetIt.instance.registerLazySingleton<SkunkService>(() => SkunkService(dioUtil,lds));
   GetIt.instance.registerLazySingleton<ConversionService>(() => ConversionService(dioUtil));
 
-  pp('$mm : GetIt has registered 17 services.  🔵🔵 Cool!! 🍎🍎🍎');
+  pp('$mm : GetIt has registered 18 services.  🔵🔵 Cool!! 🍎🍎🍎');
 
   try {
     mistralService.listModels(debug: true);

@@ -23,8 +23,7 @@ AIResponseRating _$AIResponseRatingFromJson(Map<String, dynamic> json) =>
       examTitle: json['examTitle'] as String?,
       subject: json['subject'] as String?,
       aiModel: json['aiModel'] as String?,
-      tokensUsed: json['tokensUsed'] as int?,
-    );
+    )..tokensUsed = json['tokensUsed'] as int?;
 
 Map<String, dynamic> _$AIResponseRatingToJson(AIResponseRating instance) =>
     <String, dynamic>{

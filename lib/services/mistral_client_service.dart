@@ -1,9 +1,9 @@
-import 'package:dart_mistral_api/dart_mistral_api.dart';
+import 'package:mistral_sgela_ai/mistral_sgela_ai.dart';
 
-class MistralClientService {
+class MistralServiceClient {
   final MistralService mistralService;
 
-  MistralClientService(this.mistralService);
+  MistralServiceClient(this.mistralService);
 
   Future<List<MistralModel>> getModels(
       {required String apiKey, bool? debug}) async {
@@ -17,6 +17,11 @@ class MistralClientService {
     MistralResponse? response;
     response = await mistralService.sendMistralRequest(
         mistralRequest: request, debug: debug);
+    return response;
+  }
+  Future<MistralResponse?> sendHello() async {
+    MistralResponse? response;
+    response = await mistralService.sendHello();
     return response;
   }
 

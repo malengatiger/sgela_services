@@ -7,15 +7,13 @@ part of 'tokens_used.dart';
 // **************************************************************************
 
 TokensUsed _$TokensUsedFromJson(Map<String, dynamic> json) => TokensUsed(
-      json['organizationId'] as int?,
-      json['sponsoreeId'] as int?,
-      json['date'] as String?,
-      json['sponsoreeName'] as String?,
-      json['organizationName'] as String?,
-      json['promptTokens'] as int?,
-      json['completionTokens'] as int?,
-      json['model'] as String?,
-      json['totalTokens'] as int?,
+      organizationId: json['organizationId'] as int?,
+      sponsoreeId: json['sponsoreeId'] as int?,
+      date: json['date'] as String?,
+      sponsoreeName: json['sponsoreeName'] as String?,
+      organizationName: json['organizationName'] as String?,
+      model: json['model'] as String?,
+      totalTokens: json['totalTokens'] as int?,
     );
 
 Map<String, dynamic> _$TokensUsedToJson(TokensUsed instance) =>
@@ -26,7 +24,5 @@ Map<String, dynamic> _$TokensUsedToJson(TokensUsed instance) =>
       'sponsoreeName': instance.sponsoreeName,
       'organizationName': instance.organizationName,
       'model': instance.model,
-      'promptTokens': instance.promptTokens,
-      'completionTokens': instance.completionTokens,
       'totalTokens': instance.totalTokens,
     };

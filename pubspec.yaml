@@ -86,12 +86,7 @@ dependencies:
   logger: ^2.0.2+1
   pay: ^1.1.2
   oauth2_client: ^3.2.2
-  dart_mistral_api: ^1.0.1
-
-#  package_info_plus: ^5.0.1
-
-
-
+  mistral_sgela_ai: ^1.0.11
 
 
 dev_dependencies:

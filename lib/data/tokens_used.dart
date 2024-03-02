@@ -10,19 +10,17 @@ class TokensUsed {
   int? organizationId, sponsoreeId;
   String? date, sponsoreeName;
   String? organizationName, model;
-  int? promptTokens, completionTokens, totalTokens;
+  int? totalTokens;
 
 
-  TokensUsed(
-      this.organizationId,
-      this.sponsoreeId,
-      this.date,
-      this.sponsoreeName,
-      this.organizationName,
-      this.promptTokens,
-      this.completionTokens,
-      this.model,
-      this.totalTokens);
+  TokensUsed({
+      required this.organizationId,
+      required this.sponsoreeId,
+      required this.date,
+      required this.sponsoreeName,
+      required this.organizationName,
+      required this.model,
+      required this.totalTokens});
 
   factory TokensUsed.fromJson(Map<String, dynamic> json) =>
       _$TokensUsedFromJson(json);

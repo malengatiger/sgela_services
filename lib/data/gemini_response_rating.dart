@@ -30,8 +30,7 @@ class AIResponseRating {
       required this.examLinkId,
       required this.examTitle,
       required this.subject,
-      required this.aiModel,
-      required this.tokensUsed});
+      required this.aiModel});
 
   factory AIResponseRating.fromJson(Map<String, dynamic> json) =>
       _$AIResponseRatingFromJson(json);
