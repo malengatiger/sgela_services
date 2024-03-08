@@ -293,7 +293,7 @@ class Prefs {
 }
 const modelAnthropic = 'Claude';
 
-const modelGeminiAI = 'GeminiAI';
+const modelGeminiAI = 'Gemini';
 const modelOpenAI = 'OpenAI';
 const modelMistral = 'Mistral';
 const modelPerplexityAI = 'PerplexityA';
