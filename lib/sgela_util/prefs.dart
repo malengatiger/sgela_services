@@ -291,9 +291,9 @@ class Prefs {
   }
 //
 }
-const modelAnthropic = 'ClaudeAI';
+const modelAnthropic = 'Claude';
 
 const modelGeminiAI = 'GeminiAI';
 const modelOpenAI = 'OpenAI';
-const modelMistral = 'MistralAI';
-const modelPerplexityAI = 'PerplexityAI';
+const modelMistral = 'Mistral';
+const modelPerplexityAI = 'PerplexityA';
