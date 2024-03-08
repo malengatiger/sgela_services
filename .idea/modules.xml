@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../new_code/dart_mistral_api/dart_mistral_api.iml" filepath="$PROJECT_DIR$/../new_code/dart_mistral_api/dart_mistral_api.iml" />
       <module fileurl="file://$PROJECT_DIR$/sgela_services.iml" filepath="$PROJECT_DIR$/sgela_services.iml" />
     </modules>
   </component>

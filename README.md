@@ -1,20 +1,5 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
-
-## Features
+## SgelaAI Chatbot
 
 TODO: List what your package can do. Maybe include images, gifs, or videos.
 
@@ -31,6 +16,9 @@ to `/example` folder.
 ```dart
 const like = 'sample';
 ```
+## A current project ....
+<img width="1906" alt="collage2" src="https://github.com/malengatiger/malengatiger/assets/343710/be34e0ec-c5da-4e80-8937-f7c072b580e1">
+![Screenshot 2024-03-07 at 05.37.20.png](..%2F..%2FDesktop%2FScreenshot%202024-03-07%20at%2005.37.20.png)
 
 ## Additional information
 

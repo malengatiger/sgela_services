@@ -14,7 +14,7 @@ class ChatbotEnvironment {
 
   //TODO - refresh url links after Skunk deployment
 
-  //POST
+  //anthropic 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
 
   static String getGeminiBaseUrl() {
     var url = 'https://${getRegion()}-aiplatform.googleapis.com/v1/projects/${getProject()}'
@@ -76,11 +76,20 @@ class ChatbotEnvironment {
   static String part1 = 'SyAUXc8lM1wPsR-Rrow0XLms3i';
   static String part2 = 'Tbok7FjDA';
   static String part0 = 'AIza';
-  //sk-
-  static String cpart1 = 'DaoQn8ZlwhyQtW9RMHoeT3Blbk';
-  static String cpart2 = 'FJLF9kBDWPHOCbfbm3V0rT';
-  static String cpart0 = 'sk-';
+  //sk-A2o
+  static String cpart1 = 'DpuYigpfuFaiCWmeAT3Blbk';
+  static String cpart2 = 'FJemSEBzEPBjcwyUZAS7OW';
+  static String cpart0 = 'sk-A2o';
 
+  //anthropic sk-ant
+  static String apart1 = 'api03-O3HoNkYUyuB6m8MoTzD2wNXynuK_IuK0AtuUArCotrg-LwVXom4nCB0vQBXDSfELOoUwM';
+  static String apart2 = '-__ksxyGbxRQdICsXQ-umXqawAA';
+  static String apart0 = 'sk-ant';
+
+  static String getAnthropicApiKey() {
+    return '$apart0$apart1$apart2';
+
+  }
   //
   static String mpart1 = 'jAiKDeg2CqCqc';
   static String mpart2 = 'D3a1Fjrdo';

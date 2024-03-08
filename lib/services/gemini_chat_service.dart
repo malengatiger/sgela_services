@@ -56,12 +56,16 @@ class GeminiChatService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         fun.pp(
             '$mm .... multiPart request is OK! status: ${response.statusCode} '
-            ' 🍎 message: ${response.statusMessage} ... ');
+            ' 🍎 message: ${response.statusMessage}  💜💜${response.data} 💜💜... ');
         var map = response.data;
         var map2 = map['result']['response'];
         var tokens = map['tokens'];
+        fun.pp(
+            '$mm .... response: $map');
+        fun.pp(
+            '$mm .... tokens: $tokens');
 
-        geminiResponse = MyGeminiResponse.fromJson(map2);
+        geminiResponse = MyGeminiResponse.fromJson(map);
         geminiResponse.tokensUsed = tokens;
         if (geminiResponse.candidates == null ||
             geminiResponse.candidates!.isEmpty) {
@@ -72,8 +76,8 @@ class GeminiChatService {
         var message = 'Things went south';
         geminiResponse = MyGeminiResponse([], null, 0, false, message);
       }
-    } catch (e) {
-      pp(e);
+    } catch (e,s) {
+      pp('$mm ERROR: $e - $e');
       throw Exception('$mm 👿👿👿👿Error sending SgelaAI request 👿👿👿👿');
     }
     fun.pp(

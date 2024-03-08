@@ -18,10 +18,10 @@ import '../data/sponsoree_activity.dart';
 import '../data/subject.dart';
 import '../data/tokens_used.dart';
 import '../sgela_util/dark_light_control.dart';
-import '../sgela_util/prefs.dart';
 import '../sgela_util/functions.dart';
 import '../sgela_util/image_file_util.dart';
 import '../sgela_util/location_util.dart';
+import '../sgela_util/prefs.dart';
 import 'local_data_service.dart';
 
 class FirestoreService {
@@ -105,14 +105,14 @@ class FirestoreService {
     }
     pp('$mm ... examPageContents: ${examPageContents.length} ... '
         'will download the page images ......... ');
-      for (var value in examPageContents) {
-        if (value.pageImageUrl != null) {
-          File file = await ImageFileUtil.downloadFile(
-              value.pageImageUrl!, 'file${value.pageIndex!}.png');
-          value.uBytes = file.readAsBytesSync();
-        }
-        await localDataService.addExamPageContent(value);
+    for (var value in examPageContents) {
+      if (value.pageImageUrl != null) {
+        File file = await ImageFileUtil.downloadFile(
+            value.pageImageUrl!, 'file${value.pageIndex!}.png');
+        value.uBytes = file.readAsBytesSync();
       }
+      await localDataService.addExamPageContent(value);
+    }
 
     var end = DateTime.now();
     pp('$mm Files downloaded: elapsed time: ${end.difference(start).inSeconds} seconds');
@@ -156,8 +156,7 @@ class FirestoreService {
   }
 
   Future addTokensUsed(TokensUsed tokensUsed) async {
-    var colRef = firebaseFirestore.collection(
-        'TokensUsed');
+    var colRef = firebaseFirestore.collection('TokensUsed');
     await colRef.add(tokensUsed.toJson());
     pp('$mm ... tokensUsed added to database: ${tokensUsed.toJson()}');
   }
@@ -368,6 +367,7 @@ class FirestoreService {
     }
     return null;
   }
+
   Future<OrgUser?> getOrgUser(String firebaseUserId) async {
     pp('$mm ... getOrgUser from Firestore ... firebaseUserId: $firebaseUserId');
     List<OrgUser> list = [];
@@ -386,7 +386,9 @@ class FirestoreService {
     // }
     return null;
   }
-  Future<Organization?> getOrganizationByAdminUser(String firebaseUserId) async {
+
+  Future<Organization?> getOrganizationByAdminUser(
+      String firebaseUserId) async {
     pp('$mm ... getSgelaUser from Firestore ... firebaseUserId: $firebaseUserId');
     List<Organization> list = [];
     var qs = await firebaseFirestore
@@ -404,6 +406,7 @@ class FirestoreService {
     }
     return null;
   }
+
   Future<Sponsoree?> getSponsoree(String firebaseUserId) async {
     pp('$mm ... getSponsoree from Firestore ... firebaseUserId: $firebaseUserId');
     List<Sponsoree> list = [];
@@ -425,8 +428,6 @@ class FirestoreService {
     return null;
   }
 
-
-
   Future<List<City>> getCities(int countryId) async {
     var qs = await firebaseFirestore
         .collection('City')
@@ -446,28 +447,31 @@ class FirestoreService {
 
   Future<List<Branding>> getOrganizationBrandings(
       int organizationId, bool refresh) async {
+    brandings.clear();
+
     if (refresh) {
       pp('$mm ... get branding from Firestore ... organizationId: $organizationId');
       var qs = await firebaseFirestore
           .collection('Branding')
           .where('organizationId', isEqualTo: organizationId)
           .get();
-      brandings.clear();
       for (var snap in qs.docs) {
         brandings.add(Branding.fromJson(snap.data()));
       }
       pp('$mm ... brandings found: ${brandings.length}');
-      brandings.sort((a, b) => b.date!.compareTo(a.date!));
-      prefs.saveBrandings(brandings);
-      prefs.saveBrand(brandings.first);
-      if (brandings.first.colorIndex == null) {
-        prefs.saveColorIndex(7);
-        colorWatcher.setColor(7);
-      } else {
-        prefs.saveColorIndex(brandings.first.colorIndex!);
-        colorWatcher.setColor(brandings.first.colorIndex!);
+      if (brandings.isNotEmpty) {
+        brandings.sort((a, b) => b.date!.compareTo(a.date!));
+        prefs.saveBrandings(brandings);
+        prefs.saveBrand(brandings.first);
+        if (brandings.first.colorIndex == null) {
+          prefs.saveColorIndex(7);
+          colorWatcher.setColor(7);
+        } else {
+          prefs.saveColorIndex(brandings.first.colorIndex!);
+          colorWatcher.setColor(brandings.first.colorIndex!);
+        }
+        return brandings;
       }
-      return brandings;
     }
 
     brandings = prefs.getBrandings();

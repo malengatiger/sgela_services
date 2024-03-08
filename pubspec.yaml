@@ -86,7 +86,12 @@ dependencies:
   logger: ^2.0.2+1
   pay: ^1.1.2
   oauth2_client: ^3.2.2
-  mistral_sgela_ai: ^1.0.11
+  mistral_sgela_ai: ^1.1.0+1
+
+  in_app_notification: ^1.1.2
+  in_app_purchase: ^3.1.13
+  in_app_purchase_storekit: ^0.3.12
+  purchases_flutter: ^6.22.0
 
 
 dev_dependencies:

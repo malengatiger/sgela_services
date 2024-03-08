@@ -291,6 +291,7 @@ class Prefs {
   }
 //
 }
+const modelAnthropic = 'ClaudeAI';
 
 const modelGeminiAI = 'GeminiAI';
 const modelOpenAI = 'OpenAI';
