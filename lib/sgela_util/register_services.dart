@@ -8,6 +8,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mistral_sgela_ai/mistral_sgela_ai.dart';
 import 'package:sgela_services/services/in_app_purchase_service.dart';
 import 'package:sgela_services/services/mistral_client_service.dart';
+import 'package:sgela_services/services/openai_assistant_service.dart';
 import 'package:sgela_services/services/rapyd_payment_service.dart';
 import 'package:sgela_services/services/repository.dart';
 import 'package:sgela_services/sgela_util/prefs.dart';
@@ -58,6 +59,10 @@ Future<void> registerServices(
   var cWatcher = ColorWatcher(dlc, prefs);
 
   var mistralService = MistralService(ChatbotEnvironment.getMistralAPIKey());
+
+  GetIt.instance.registerLazySingleton<OpenAIAssistantService>(
+          () => OpenAIAssistantService(dioUtil));
+
   GetIt.instance.registerLazySingleton<MistralServiceClient>(
       () => MistralServiceClient(mistralService));
   pp('$mm ... MistralServiceClient registered lazy! key: ${ChatbotEnvironment.getMistralAPIKey()}');

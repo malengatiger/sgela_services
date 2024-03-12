@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:sgela_services/sgela_util/dio_util.dart';
 import 'package:sgela_services/sgela_util/environment.dart';
 import 'package:sgela_services/sgela_util/sponsor_prefs.dart';
@@ -18,10 +19,9 @@ class RapydPaymentService {
       String type) async {
     pp('$mm ... getPaymentMethodRequiredFields .... type: $type');
 
-    var raw = await dioUtil.sendGetRequest(
-        "${prefix}rapyd/getPaymentMethodRequiredFields?type=$type", {});
-    var status = Status.fromJson(raw['status']);
-    RequiredFields reqFields = RequiredFields.fromJson(raw['data']);
+    var raw = await dioUtil.sendGetRequest(path:
+        "${prefix}rapyd/getPaymentMethodRequiredFields?type=$type", queryParameters: {});
+    RequiredFields reqFields = RequiredFields.fromJson(raw.data);
     int cnt = 1;
 
       try {
@@ -64,10 +64,9 @@ class RapydPaymentService {
     //   pp('$mm ... getCountryPaymentMethods .... ${pms.length} found in cache');
     //   return pms;
     // }
-    var raw = await dioUtil.sendGetRequest(
-        "${prefix}rapyd/getCountryPaymentMethods?countryCode=$countryCode", {});
-    var status = Status.fromJson(raw['status']);
-    List mList = raw['data'];
+    Response raw = await dioUtil.sendGetRequest(
+        path: "${prefix}rapyd/getCountryPaymentMethods?countryCode=$countryCode",  queryParameters: {},);
+    List mList = raw.data;
     int cnt = 1;
     for (var m in mList) {
       try {
@@ -91,8 +90,8 @@ class RapydPaymentService {
   Future<Customer?> addCustomer(CustomerRequest customerReq) async {
     pp(' ... addCustomer ....');
     var url = '${prefix}rapyd/createCustomer';
-    var resp = await dioUtil.sendPostRequest(url, customerReq.toJson());
-    var cr = CustomerResponse.fromJson(resp);
+    var resp = await dioUtil.sendPostRequest(path:url, body:customerReq.toJson());
+    var cr = CustomerResponse.fromJson(resp.data);
     pp('$mm addCustomer response: ${cr.toJson()}');
     if (cr.data != null) {
       //prefs.saveCustomer(cr.data!);
@@ -104,11 +103,11 @@ class RapydPaymentService {
   Future addCustomerPaymentMethod(String customer, String type) async {
     pp(' ... addCustomerPaymentMethod ...');
     var url = '${prefix}rapyd/addCustomerPaymentMethod';
-    var resp = await dioUtil.sendGetRequest(url, {
+    var resp = await dioUtil.sendGetRequest(path: url, queryParameters:  {
       "customer": customer,
       "type": type,
     });
-    var cr = CustomerPaymentMethodResponse.fromJson(resp);
+    var cr = CustomerPaymentMethodResponse.fromJson(resp.data);
     pp('$mm addCustomerPaymentMethod response:  🥬🥬🥬🥬 ${cr.toJson()}');
     return cr.data;
   }
@@ -116,17 +115,17 @@ class RapydPaymentService {
   Future<Checkout> createCheckOut(CheckoutRequest request) async {
     pp(' ... checkOut ....');
     var url = '${prefix}rapyd/createCheckout';
-    var resp = await dioUtil.sendPostRequest(url, request.toJson());
+    var resp = await dioUtil.sendPostRequest(path:url, body:request.toJson());
     pp('$mm raw response from createCheckOut: $resp');
-    var cr = CheckoutResponse.fromJson(resp);
+    var cr = CheckoutResponse.fromJson(resp.data);
     pp('$mm createCheckOut response, will need redirect: ${cr.toJson()}');
     return cr.data!;
   }
   Future<PaymentResponse> createPaymentByCard(PaymentByCardRequest request) async {
     pp(' ... createPaymentByCard ...');
     var url = '${prefix}rapyd/createPaymentByCard';
-    var resp = await dioUtil.sendPostRequest(url, request.toJson());
-    var cr = PaymentResponse.fromJson(resp);
+    var resp = await dioUtil.sendPostRequest(path:url, body: request.toJson());
+    var cr = PaymentResponse.fromJson(resp.data);
     pp('$mm createPaymentByCard response, will need redirect: ${cr.toJson()}');
     return cr;
   }
@@ -134,16 +133,16 @@ class RapydPaymentService {
   Future<PaymentResponse> createPaymentByBankTransfer(PaymentByBankTransferRequest request) async {
     pp(' ... payByBankTransfer ...');
     var url = '${prefix}rapyd/createPaymentByBankTransfer';
-    var resp = await dioUtil.sendPostRequest(url, request.toJson());
-    var cr = PaymentResponse.fromJson(resp);
+    var resp = await dioUtil.sendPostRequest(path:url, body:request.toJson());
+    var cr = PaymentResponse.fromJson(resp.data);
     pp('$mm payByBankTransfer response, will need redirect: ${cr.toJson()}');
     return cr;
   }
   Future<PaymentResponse> createPaymentByWallet(PaymentByWalletRequest request) async {
     pp(' ... payByBankTransfer ...');
     var url = '${prefix}rapyd/createPaymentByWallet';
-    var resp = await dioUtil.sendPostRequest(url, request.toJson());
-    var cr = PaymentResponse.fromJson(resp);
+    var resp = await dioUtil.sendPostRequest(path:url, body: request.toJson());
+    var cr = PaymentResponse.fromJson(resp.data);
     pp('$mm createPaymentByWallet response, will need redirect: ${cr.toJson()}');
     return cr;
   }

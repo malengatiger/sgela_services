@@ -15,16 +15,6 @@ class DioUtil {
 
   DioUtil(this.dio, this.localDataService);
 
-  /*
-  curl https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:countTokens?key=$API_KEY \
-    -H 'Content-Type: application/json' \
-    -X POST \
-    -d '{
-      "contents": [{
-        "parts":[{
-          "text": "Write a story about a magic backpack."}]}]}' > response.json
-   */
-
   static const urlPrefix =
       'https://generativelanguage.googleapis.com/v1beta/models/';
 
@@ -57,7 +47,7 @@ class DioUtil {
     throw Exception('👿👿👿Failed to send tokensUsed');
   }
 
-  Future<dynamic> sendGetRequestWithHeaders(
+  Future<Response> sendGetRequestWithHeaders(
       {required String path,
       required Map<String, dynamic> queryParameters,
       required dynamic headers}) async {
@@ -73,7 +63,7 @@ class DioUtil {
       );
 
       pp('$mm Dio network response: 🥬🥬🥬🥬🥬🥬 status code: ${response.statusCode}');
-      return response.data;
+      return response;
     } catch (e) {
       pp('$mm Dio network response: 👿👿👿👿 ERROR: $e');
       pp(e);
@@ -81,8 +71,8 @@ class DioUtil {
     }
   }
 
-  Future<dynamic> sendGetRequest(
-      String path, Map<String, dynamic> queryParameters) async {
+  Future<Response> sendGetRequest({
+      required String path, required Map<String, dynamic> queryParameters}) async {
     pp('$mm Dio starting ...: 🍎🍎🍎 path: $path 🍎🍎');
     try {
       Response response;
@@ -95,7 +85,7 @@ class DioUtil {
       );
 
       pp('$mm Dio network response: 🥬🥬🥬🥬🥬🥬 status code: ${response.statusCode}');
-      return response.data;
+      return response;
     } catch (e) {
       pp('$mm Dio network response: 👿👿👿👿 ERROR: $e');
       pp(e);
@@ -103,7 +93,7 @@ class DioUtil {
     }
   }
 
-  Future<dynamic> sendPostRequest(String path, dynamic body) async {
+  Future<Response> sendPostRequest({required String path, required dynamic body}) async {
     pp('$mm Dio sendPostRequest ...: 🍎🍎🍎 path: $path 🍎🍎');
     try {
       Response response;
@@ -124,7 +114,7 @@ class DioUtil {
             pp('$mm Error occurred during the POST request: $error');
           });
       pp('$mm .... network POST response, 💚status code: ${response.statusCode} 💚💚');
-      return response.data;
+      return response;
     } catch (e) {
       pp('$mm .... network POST error response, '
           '👿👿👿👿 $e 👿👿👿👿');

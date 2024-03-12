@@ -161,9 +161,10 @@ class GeminiChatService {
     fun.pp('$mm sendChatPrompt: will send $url ...');
 
     try {
-      var resp = await dioUtil.sendGetRequest(url, {'prompt': prompt});
+      var resp = await dioUtil.sendGetRequest(
+          path: url, queryParameters: {'prompt': prompt});
 
-      List? candidates = resp['candidates'];
+      List? candidates = resp.data;
       if (candidates == null) {
         return 'Unable to generate a response';
       }

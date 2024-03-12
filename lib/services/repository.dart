@@ -35,9 +35,9 @@ class RepositoryService {
   Future<Organization?> getSgelaOrganization() async {
     String prefix = ChatbotEnvironment.getSkunkUrl();
     String url = '${prefix}organizations/getSgelaOrganization';
-    var result = await dioUtil.sendGetRequest(url, {});
-    pp('$mm ... response from call: $result');
-    Organization org = Organization.fromJson(result);
+    var result = await dioUtil.sendGetRequest(path:url, queryParameters:  {});
+    pp('$mm ... response from call: ${result.data}');
+    Organization org = Organization.fromJson(result.data);
     return org;
   }
 
@@ -46,9 +46,9 @@ class RepositoryService {
     String url = '${prefix}organizations/addOrganization';
     pp('$mm ...registerOrganization: calling: $url');
 
-    var result = await dioUtil.sendPostRequest(url, organization.toJson());
+    var result = await dioUtil.sendPostRequest(path:url, body:organization.toJson());
     pp('$mm ... response from call: $result');
-    Organization org = Organization.fromJson(result);
+    Organization org = Organization.fromJson(result.data);
     prefs.saveOrganization(org);
     prefs.saveCountry(org.country!);
 
@@ -63,10 +63,10 @@ class RepositoryService {
       var url = '${prefix}organizations/uploadBrandingWithNoFiles';
       pp('$mm ... uploadBrandingWithNoFiles calling: $url');
 
-      var res = await dioUtil.sendPostRequest(url, branding.toJson());
+      var res = await dioUtil.sendPostRequest(path:url, body:branding.toJson());
       pp('$mm res; $res');
 
-      var uploadedBranding = Branding.fromJson(res);
+      var uploadedBranding = Branding.fromJson(res.data);
       if (uploadedBranding.logoUrl != null) {
         SponsorPrefs prefs = GetIt.instance<SponsorPrefs>();
         prefs.saveLogoUrl(uploadedBranding.logoUrl!);

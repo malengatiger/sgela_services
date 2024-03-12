@@ -1,4 +1,4 @@
-
+import 'package:dio/dio.dart';
 
 import '../data/youtube_data.dart';
 import '../sgela_util/dio_util.dart';
@@ -21,11 +21,14 @@ class YouTubeService {
     String url = ChatbotEnvironment.getSkunkUrl();
     String mUrl = '${url}searchVideosByTag';
     List<YouTubeData> youTubeDataList = [];
-    var res = await dioUtil.sendGetRequest(mUrl,
-        {'subjectId': subjectId, 'maxResults': maxResults, 'tagType': tagType});
+    var res = await dioUtil.sendGetRequest(path: mUrl, queryParameters: {
+      'subjectId': subjectId,
+      'maxResults': maxResults,
+      'tagType': tagType
+    });
     // Assuming the response data is a list of youTubeDataList
 
-    List<dynamic> responseData = res;
+    List<dynamic> responseData = res.data;
     for (var linkData in responseData) {
       YouTubeData ytd = YouTubeData.fromJson(linkData);
       youTubeDataList.add(ytd);
@@ -51,11 +54,14 @@ class YouTubeService {
     String url = ChatbotEnvironment.getSkunkUrl();
     String mUrl = '${url}searchVideos';
     List<YouTubeData> youTubeDataList = [];
-    var res = await dioUtil.sendGetRequest(mUrl,
-        {'subjectId': subjectId, 'maxResults': maxResults, 'query': query});
+    Response res = await dioUtil.sendGetRequest(path: mUrl, queryParameters: {
+      'subjectId': subjectId,
+      'maxResults': maxResults,
+      'query': query
+    });
     // Assuming the response data is a list of youTubeDataList
 
-    List<dynamic> responseData = res;
+    List<dynamic> responseData = res.data;
     for (var linkData in responseData) {
       YouTubeData ytd = YouTubeData.fromJson(linkData);
       youTubeDataList.add(ytd);

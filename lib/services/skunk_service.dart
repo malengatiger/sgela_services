@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
+
 import '../data/exam_page_content.dart';
 import '../sgela_util/dio_util.dart';
 import '../sgela_util/environment.dart';
@@ -18,10 +20,10 @@ class SkunkService {
     List<ExamPageContent> examPageContents = [];
 
     var prefix = ChatbotEnvironment.getSkunkUrl();
-    List res = await dioUtil.sendGetRequest(
+    Response res = await dioUtil.sendGetRequest(path:
         '${prefix}examPageContents/extractPageContentForExam',
-        {'examLinkId': examLinkId});
-    for (var mJson in res) {
+        queryParameters: {'examLinkId': examLinkId});
+    for (var mJson in res.data) {
       examPageContents.add(ExamPageContent.fromJson(mJson));
     }
 

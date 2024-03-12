@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:sgela_services/data/assistant_data_openai/assistant.dart';
 import 'package:sgela_services/data/org_user.dart';
 
 import '../data/branding.dart';
@@ -150,11 +151,26 @@ class FirestoreService {
     return ratings;
   }
 
+  Future<List<OpenAIAssistant>> getOpenAIAssistants() async {
+    List<OpenAIAssistant> assistants = [];
+    var querySnapshot = await firebaseFirestore
+        .collection('OpenAIAssistant')
+        .get();
+    for (var s in querySnapshot.docs) {
+      var assistant = OpenAIAssistant.fromJson(s.data());
+      assistants.add(assistant);
+    }
+    return assistants;
+  }
+
   Future addRating(AIResponseRating rating) async {
     var colRef = firebaseFirestore.collection('AIResponseRating');
     await colRef.add(rating.toJson());
   }
-
+  Future addOpenAIAssistant(OpenAIAssistant assistant) async {
+    var colRef = firebaseFirestore.collection('OpenAIAssistant');
+    await colRef.add(assistant.toJson());
+  }
   Future addTokensUsed(TokensUsed tokensUsed) async {
     var colRef = firebaseFirestore.collection('TokensUsed');
     await colRef.add(tokensUsed.toJson());
