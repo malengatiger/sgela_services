@@ -86,12 +86,19 @@ dependencies:
   flutter_download_manager: ^0.5.5
   logger: ^2.1.0
   pay: ^2.0.0
-  mistral_sgela_ai: ^1.1.0+1
+  mistral_sgela_ai: ^1.1.0+2
 
   in_app_notification: ^1.1.2
   in_app_purchase: ^3.1.13
   in_app_purchase_storekit: ^0.3.13+1
   purchases_flutter: ^6.23.0
+
+  pinecone: ^0.7.2
+  langchain_pinecone: ^0.0.7
+  langchain_google: ^0.2.4
+  langchain_openai: ^0.4.1
+  langchain_mistralai: ^0.0.3
+  langchain: ^0.4.2
 
 
 dev_dependencies:

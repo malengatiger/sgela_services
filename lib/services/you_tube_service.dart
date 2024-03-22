@@ -21,7 +21,7 @@ class YouTubeService {
     String url = ChatbotEnvironment.getSkunkUrl();
     String mUrl = '${url}searchVideosByTag';
     List<YouTubeData> youTubeDataList = [];
-    var res = await dioUtil.sendGetRequest(path: mUrl, queryParameters: {
+    var res = await dioUtil.sendGetRequest(path: mUrl, params: {
       'subjectId': subjectId,
       'maxResults': maxResults,
       'tagType': tagType
@@ -54,7 +54,7 @@ class YouTubeService {
     String url = ChatbotEnvironment.getSkunkUrl();
     String mUrl = '${url}searchVideos';
     List<YouTubeData> youTubeDataList = [];
-    Response res = await dioUtil.sendGetRequest(path: mUrl, queryParameters: {
+    Response res = await dioUtil.sendGetRequest(path: mUrl, params: {
       'subjectId': subjectId,
       'maxResults': maxResults,
       'query': query

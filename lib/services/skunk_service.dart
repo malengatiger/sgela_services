@@ -22,7 +22,7 @@ class SkunkService {
     var prefix = ChatbotEnvironment.getSkunkUrl();
     Response res = await dioUtil.sendGetRequest(path:
         '${prefix}examPageContents/extractPageContentForExam',
-        queryParameters: {'examLinkId': examLinkId});
+        params: {'examLinkId': examLinkId});
     for (var mJson in res.data) {
       examPageContents.add(ExamPageContent.fromJson(mJson));
     }

@@ -27,7 +27,7 @@ class BasicRepository {
 
     String prefix = ChatbotEnvironment.getSkunkUrl();
     String url = '${prefix}organizations/getSgelaOrganization';
-    var result = await dioUtil.sendGetRequest(path:url, queryParameters: {});
+    var result = await dioUtil.sendGetRequest(path:url, params: {});
     pp('$mm ... response from call: $result');
     Organization org = Organization.fromJson(result.data);
     return org;

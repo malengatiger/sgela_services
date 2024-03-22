@@ -14,9 +14,11 @@ class OpenAIAssistant {
   List<String> fileIds;
   dynamic metadata;
   String? description;
+  String? examLinkTitle;
+  int? examLinkId;
 
   OpenAIAssistant(
-      { this.id,
+      {this.id,
       required this.name,
       required this.instructions,
       required this.tools,
@@ -26,6 +28,8 @@ class OpenAIAssistant {
       required this.fileIds,
       this.metadata,
       required this.description,
+      this.examLinkId,
+      this.examLinkTitle,
       this.subjectTitle});
 
   factory OpenAIAssistant.fromJson(Map<String, dynamic> json) =>

@@ -162,7 +162,7 @@ class GeminiChatService {
 
     try {
       var resp = await dioUtil.sendGetRequest(
-          path: url, queryParameters: {'prompt': prompt});
+          path: url, params: {'prompt': prompt});
 
       List? candidates = resp.data;
       if (candidates == null) {

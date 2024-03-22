@@ -7,33 +7,20 @@ import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sgela_services/data/assistant_data_openai/assistant.dart';
 import 'package:sgela_services/data/assistant_data_openai/assistant_file.dart';
 import 'package:sgela_services/data/assistant_data_openai/message.dart';
 import 'package:sgela_services/data/assistant_data_openai/model.dart';
 import 'package:sgela_services/data/assistant_data_openai/run.dart';
 import 'package:sgela_services/data/assistant_data_openai/thread.dart';
-import 'package:sgela_services/data/subject.dart';
+import 'package:sgela_services/data/exam_link.dart';
 import 'package:sgela_services/services/firestore_service.dart';
 import 'package:sgela_services/sgela_util/dio_util.dart';
 import 'package:sgela_services/sgela_util/environment.dart';
 import 'package:sgela_services/sgela_util/functions.dart';
 
 class OpenAIAssistantService {
-  /*
-  Nest] 85786  - 03/11/2024, 5:37:27 AM     LOG [RoutesResolver] AssistantController {/assistant}: +0ms
-[Nest] 85786  - 03/11/2024, 5:37:27 AM     LOG [RouterExplorer] Mapped {/assistant/runThread, GET} route +1ms
-[Nest] 85786  - 03/11/2024, 5:37:27 AM     LOG [RouterExplorer] Mapped {/assistant/checkRunStatus, GET} route +0ms
-[Nest] 85786  - 03/11/2024, 5:37:27 AM     LOG [RouterExplorer] Mapped {/assistant/getThreadMessages, GET} route +0ms
-[Nest] 85786  - 03/11/2024, 5:37:27 AM     LOG [RouterExplorer] Mapped {/assistant/getAssistants, GET} route +0ms
-[Nest] 85786  - 03/11/2024, 5:37:27 AM     LOG [RouterExplorer] Mapped {/assistant/getThread, GET} route +0ms
-[Nest] 85786  - 03/11/2024, 5:37:27 AM     LOG [RouterExplorer] Mapped {/assistant/listModels, GET} route +0ms
-[Nest] 85786  - 03/11/2024, 5:37:27 AM     LOG [RouterExplorer] Mapped {/assistant/uploadFiles, POST} route +0ms
-[Nest] 85786  - 03/11/2024, 5:37:27 AM     LOG [RouterExplorer] Mapped {/assistant/createAssistant, POST} route +0ms
-[Nest] 85786  - 03/11/2024, 5:37:27 AM     LOG [RouterExplorer] Mapped {/assistant/createMessage, POST} route +0ms
-[Nest] 85786  - 03/11/2024, 5:37:27 AM     LOG [RouterExplorer] Mapped {/assistant/createThread, POST} route +0ms
-   */
-
   final DioUtil dioUtil;
   static const defaultModel = 'gpt-4-turbo-preview';
   static const mm = '🥦🥦🥦 OpenAIAssistantService 🥦🥦🥦';
@@ -44,6 +31,11 @@ class OpenAIAssistantService {
       StreamController.broadcast();
 
   Stream<List<Message>> get messageStream => _msgController.stream;
+  final StreamController<List<Message>> _questionController =
+      StreamController.broadcast();
+
+  Stream<List<Message>> get questionResponseStream =>
+      _questionController.stream;
 
   final StreamController<String> _statusController =
       StreamController.broadcast();
@@ -51,21 +43,27 @@ class OpenAIAssistantService {
   Stream<String> get statusStream => _statusController.stream;
 
   //
-  Future<OpenAIAssistant?> findAssistant(String subject) async {
+  Future<OpenAIAssistant?> findAssistant(ExamLink examLink) async {
     FirestoreService fs = GetIt.instance<FirestoreService>();
     List<OpenAIAssistant> assistants = await fs.getOpenAIAssistants();
     OpenAIAssistant? found;
     for (var value in assistants) {
-      if (value.name!.contains(subject)) {
+      pp('$mm Assistant: ${value.name} ');
+    }
+    for (var value in assistants) {
+      if (value.examLinkId! == examLink.id!) {
+        pp('$mm Assistant found for subject: 🍎${value.name} 🍎 ');
         return value;
       }
     }
+    pp('$mm Assistant for ${examLink.title} NOT found');
     return found;
   }
+
   /*
     🥦🥦🥦
     1. findAssistant by subject
-    2. create Assistant, save in firestore
+    2. create Assistant if required, save in firestore
     3. upload exam paper pdf
     4. create thread with message and uploaded file id
     5. run thread
@@ -79,16 +77,25 @@ class OpenAIAssistantService {
     13. Rate your experience ... 🥦🥦🥦
    */
 
-  Future<OpenAIAssistant?> createAssistant({required Subject subject,
-    String? model,
-  }) async {
+  Future<OpenAIAssistant?> createAssistant(
+      {required ExamLink examLink, String? model}) async {
     OpenAIAssistant? openAIAssistant;
     FirestoreService fs = GetIt.instance<FirestoreService>();
     try {
-      pp('$mm assistant instructions: $generalInstructions');
-      var mName = 'SgelaAI Tutor Assistant - ${subject.title!}';
-      var mDesc = 'Expert Tutor and Assistant to help students and teachers with:  ${subject.title!}';
-      var inst = generalInstructions.replaceAll('#SUBJECT', subject.title!);
+      pp('$mm assistant examLink: ${examLink.toJson()}');
+
+      //pp('$mm assistant instructions: $generalInstructions');
+      var mName = 'SgelaAI Tutor/Assistant - ${examLink.title!}';
+      var mDesc =
+          'Expert Tutor and Assistant to help students and teachers with:  ${examLink.title!}';
+      var inst =
+          generalInstructions.replaceAll('#SUBJECT', examLink.subject!.title!);
+      AssistantFile? uploadedFile;
+
+      var fileName = '${examLink.documentTitle}'.replaceAll('/', '-');
+      fileName = '${examLink.subject!.title} $fileName ${examLink.title}.pdf';
+      File? file = await downloadFile(examLink.link!, fileName);
+      uploadedFile = await uploadFile(file);
       var inputAssistant = OpenAIAssistant(
           name: mName,
           description: mDesc,
@@ -97,18 +104,20 @@ class OpenAIAssistantService {
             Tools(type: 'retrieval'),
           ],
           model: model ?? defaultModel,
-          fileIds: []);
+          fileIds: uploadedFile == null ? [] : [uploadedFile.id!]);
       pp('$mm ....... create inputAssistant: ${inputAssistant.toJson()}');
       //send request
       Response response = await dioUtil.sendPostRequest(
           path: '${ChatbotEnvironment.getGeminiUrl()}assistant/createAssistant',
           body: inputAssistant.toJson());
       if (response.statusCode == 200 || response.statusCode == 201) {
-        var mJson = jsonDecode(response.data);
-        openAIAssistant = OpenAIAssistant.fromJson(mJson);
-        openAIAssistant.subjectId = subject.id!;
-        openAIAssistant.subjectTitle = subject.title!;
+        openAIAssistant = OpenAIAssistant.fromJson(response.data);
+        openAIAssistant.subjectId = examLink.id!;
+        openAIAssistant.subjectTitle = examLink.title!;
+        openAIAssistant.examLinkId = examLink.id;
+        openAIAssistant.examLinkTitle = examLink.title;
         openAIAssistant.date = DateTime.now().toUtc().toIso8601String();
+        openAIAssistant.fileIds = [uploadedFile!.id!];
         await fs.addOpenAIAssistant(openAIAssistant);
         pp('$mm ... openAIAssistant: 🔵🔵🔵 ${openAIAssistant.toJson()} 🔵');
       } else {
@@ -124,6 +133,7 @@ class OpenAIAssistantService {
   }
 
   Future<AssistantFile?> uploadFile(File file) async {
+    pp('$mm ....... start to upload Assistant file: ${file.path}');
     var url = '${ChatbotEnvironment.getGeminiUrl()}assistant/uploadFile';
     var uri = Uri.parse(url);
     var request = http.MultipartRequest('POST', uri);
@@ -143,14 +153,17 @@ class OpenAIAssistantService {
     //
     try {
       var response = await request.send();
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         var uploadedAssistantFile = await response.stream.bytesToString();
         var mJson = jsonDecode(uploadedAssistantFile);
-        pp('$mm uploaded Assistant File: $mJson');
+        pp('\n\n$mm uploaded Assistant pdf File: 🍎💛💛💛 $mJson\n\n');
         assistantFile = AssistantFile.fromJson(mJson['result']);
       } else {
+        pp('$mm Failed to upload file: statusCode: ${response.statusCode} '
+            'reasonPhrase: ${response.reasonPhrase}');
         throw Exception(
-            'Failed to upload file: ${response.statusCode} ${response.reasonPhrase}');
+            'Failed to upload file: statusCode: ${response.statusCode} '
+            'reasonPhrase: ${response.reasonPhrase}');
       }
     } catch (e, s) {
       pp('$mm $e $s');
@@ -160,61 +173,52 @@ class OpenAIAssistantService {
   }
 
   Future<Message> createMessage(
-      String threadId, String text, File? file) async {
+      {required String threadId, required String text}) async {
+    pp('$mm ....... createMessage:  threadId: $threadId message: $text');
+
     var url = '${ChatbotEnvironment.getGeminiUrl()}assistant/createMessage';
 
-    AssistantFile? uploadedFile;
     Message? message;
-    List<String> fileIds = [];
-    if (file != null) {
-      uploadedFile = await uploadFile(file);
-    }
-    if (uploadedFile != null) {
-      fileIds.add(uploadedFile.id!);
-    }
+
     var messageBody = {
       'threadId': threadId,
       'content': text,
-      'fileId': uploadedFile?.id!,
     };
     try {
       Response res =
-          await dioUtil.sendPostRequest(path: url, body: messageBody);
+          await dioUtil.sendGetRequest(path: url, params: messageBody);
       if (res.statusCode == 200 || res.statusCode == 201) {
-        var mJson = jsonDecode(res.data);
-        message = Message.fromJson(mJson);
+        message = Message.fromJson(res.data);
+        pp('$mm created message: 🍎 ${message.toJson()} 🍎');
         return message;
       } else {
+        pp('$mm FAILED: create message: statusCode: '
+            '${res.statusCode} msg: ${res.statusMessage}');
+
         throw Exception(
-            'Failed to create message; error: ${res.statusCode} - ${res.statusMessage}');
+            'Failed to create message;  👿👿👿👿statusCode: ${res.statusCode} - ${res.statusMessage}');
       }
     } catch (e, s) {
-      pp('$mm $e $s');
+      pp('$mm  👿👿👿👿$e $s');
       throw Exception('Failed to create message; error: $e');
     }
   }
 
-  Future<Thread> createThread(String text, File? file) async {
+  Future<Thread> createThread() async {
     var url = '${ChatbotEnvironment.getGeminiUrl()}assistant/createThread';
-    //todo - 🥦🥦🥦add uploaded file in the Thread or subsequent Messages ??????
-    Thread? thread;
-    AssistantFile? assistantFile;
-    if (file != null) {
-      assistantFile = await uploadFile(file);
-    }
+    pp('\n\n$mm .... create Assistant thread .............\n');
 
-    var json = {
-      'role': 'user',
-      'content': text,
-      'fileIds': assistantFile == null ? [] : [assistantFile.id]
-    };
+    Thread? thread;
+
     try {
-      Response res = await dioUtil.sendPostRequest(path: url, body: json);
+      Response res = await dioUtil.sendGetRequest(path: url, params: {});
       if (res.statusCode == 200 || res.statusCode == 201) {
-        var mJson = jsonDecode(res.data);
-        thread = Thread.fromJson(mJson);
+        thread = Thread.fromJson(res.data);
+        pp('\n$mm created thread: 🍎🍎🍎🍎 ${thread.toJson()} 🍎\n');
         return thread;
       } else {
+        pp('$mm FAILED: create thread: statusCode: '
+            '${res.statusCode} msg: ${res.statusMessage}');
         throw Exception(
             'Failed to create thread; statusCode: ${res.statusCode}');
       }
@@ -224,143 +228,159 @@ class OpenAIAssistantService {
     }
   }
 
-  Future<void> runThread(
+  Future<Run> runThread(
       {required String threadId, required String assistantId}) async {
     var url = '${ChatbotEnvironment.getGeminiUrl()}assistant/runThread';
+    pp('$mm ....... start to run thread: $threadId assistantId: $assistantId');
 
+    late Run run;
     try {
-      Response res = await dioUtil.sendPostRequest(path: url, body: {
+      Response res = await dioUtil.sendGetRequest(path: url, params: {
         'threadId': threadId,
         'assistantId': assistantId,
       });
       if (res.statusCode == 200 || res.statusCode == 201) {
-        var mJson = jsonDecode(res.data);
-        var run = Run.fromJson(mJson);
-        pp('$mm ... run thread returned, '
-            'will start polling ...: ${run.toJson()}');
-        pollThread(threadId, run.id!);
+        run = Run.fromJson(res.data);
+        pp('\n\n$mm ... run thread returned, '
+            'will start polling ... 🔵🔵🔵🔵🔵🔵 run: ${run.id} ${run.status} ${run.threadId}');
       } else {
+        pp('$mm FAILED: run thread: statusCode: '
+            '${res.statusCode} msg: ${res.statusMessage}');
         throw Exception(
             'Failed to run thread; statusCode: ${res.statusCode}  ${res.statusMessage}');
       }
     } catch (e, s) {
       pp('$mm $e $s');
-      throw Exception('Failed to create thread; error: $e');
+      throw Exception('Failed to run thread; error: $e');
     }
+    return run;
   }
 
-  Future<List<Message>> getThreadMessages({required String threadId}) async {
+  Future<List<Message>> getThreadMessages(
+      {required String threadId, required bool isQuestion}) async {
     pp('$mm ... getThreadMessages started ... threadId: $threadId');
     var url = '${ChatbotEnvironment.getGeminiUrl()}assistant/getThreadMessages';
     List<Message> messages = [];
     try {
       Response res = await dioUtil
-          .sendGetRequest(path: url, queryParameters: {'threadId': threadId});
-      if (res.statusCode == 200) {
+          .sendGetRequest(path: url, params: {'threadId': threadId});
+      if (res.statusCode == 200 || res.statusCode == 201) {
         List json = res.data;
         for (var value in json) {
           messages.add(Message.fromJson(value));
         }
         pp('$mm ... getThreadMessages messages found: ${messages.length}'
-            ' ... put on message stream ...');
-        _msgController.sink.add(messages);
+            ' ... put on message stream ... isQuestion: $isQuestion');
+        for (var msg in messages) {
+          pp('$mm message: ${msg.toJson()}');
+        }
+        if (isQuestion) {
+          _questionController.sink.add(messages);
+        } else {
+          _msgController.sink.add(messages);
+        }
         return messages;
       } else {
         pp('$mm ... getThreadMessages messages found: ZERO!!');
       }
     } catch (e, s) {
-      pp('$mm $e $s');
+      pp('$mm  👿👿👿👿$e $s');
       throw Exception('Failed to create thread; error: $e');
     }
+
     return messages;
   }
 
-  Future<Run> pollThread(String threadId, String runId) async {
+  late Timer timer;
+
+  void startPollingTimer(String threadId, String runId, bool isQuestion) {
+    timer = Timer.periodic(Duration(seconds: 15), (timer) {
+      pp('$mm timer tick #${timer.tick}');
+      _pollThread(threadId, runId, isQuestion);
+    });
+  }
+
+  Future<Run> _pollThread(
+      String threadId, String runId, bool isQuestion) async {
     pp('$mm ... pollThread started ... runId: $runId threadId: $threadId');
     var url = '${ChatbotEnvironment.getGeminiUrl()}assistant/checkRunStatus';
 
-    String? completed;
-
+    late Run run;
     try {
-      while (completed == null) {
-        Future.delayed(Duration(seconds: 5), () async {
-          Response res = await dioUtil.sendGetRequest(
-              path: url,
-              queryParameters: {'runId': runId, 'threadId': threadId});
-          if (res.statusCode == 200 || res.statusCode == 201) {
-            var mJson = jsonDecode(res.data);
-            var run = Run.fromJson(mJson);
-            if (run.status != null) {
-              switch (run.status) {
-                case Status.queued:
-                  pp('$mm Run status: ${Status.queued}');
-                  _statusController.sink.add(Status.queued.name);
-                  break;
-                case Status.in_progress:
-                  pp('$mm Run status: ${Status.in_progress}');
-                  _statusController.sink.add(Status.in_progress.name);
-                  break;
-                case Status.completed:
-                  completed = 'yes';
-                  pp('$mm Run status: ${Status.completed}');
-                  _statusController.sink.add(Status.completed.name);
-                  getThreadMessages(threadId: threadId);
-                  return run;
-                  break;
-                case Status.cancelling:
-                  pp('$mm Run status: ${Status.cancelling}');
-                  _statusController.sink.add(Status.cancelling.name);
-
-                  break;
-                case Status.cancelled:
-                  pp('$mm Run status: ${Status.cancelled}');
-                  _statusController.sink.add(Status.cancelled.name);
-
-                  break;
-                case Status.failed:
-                  pp('$mm Run status: ${Status.failed}');
-                  _statusController.sink.add(Status.failed.name);
-
-                  break;
-                case Status.expired:
-                  pp('$mm Run status: ${Status.expired}');
-                  _statusController.sink.add(Status.expired.name);
-
-                  break;
-                case Status.requires_action:
-                  pp('$mm Run status: ${Status.requires_action}');
-                  _statusController.sink.add(Status.requires_action.name);
-
-                  break;
-                case null:
-                  pp('$mm Run status is null');
-                  break;
-              }
-            }
-            pp('\n\n$mm ... result from poll, run: ${res.data}');
-          } else {
-            throw Exception(
-                'Failed to get Run status: ${res.statusCode} ${res.statusMessage}');
+      Response res = await dioUtil.sendGetRequest(
+          path: url, params: {'runId': runId, 'threadId': threadId});
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        run = Run.fromJson(res.data);
+        if (run.status != null) {
+          switch (run.status) {
+            case Status.queued:
+              pp('\n\n$mm Run status: ${Status.queued}');
+              _statusController.sink.add(Status.queued.name);
+              break;
+            case Status.in_progress:
+              pp('\n\n$mm Run status: ${Status.in_progress}');
+              _statusController.sink.add(Status.in_progress.name);
+              break;
+            case Status.completed:
+              pp('\n\n$mm Run status: 🥦🥦🥦 ${Status.completed} 🥦🥦🥦');
+              _statusController.sink.add(Status.completed.name);
+              timer.cancel();
+              getThreadMessages(threadId: threadId, isQuestion: isQuestion);
+              return run;
+              break;
+            case Status.cancelling:
+              pp('\n\n$mm Run status: ${Status.cancelling}');
+              _statusController.sink.add(Status.cancelling.name);
+              break;
+            case Status.cancelled:
+              pp('\n\n$mm Run status: ${Status.cancelled}');
+              _statusController.sink.add(Status.cancelled.name);
+              timer.cancel();
+              break;
+            case Status.failed:
+              pp('\n\n$mm Run status: ${Status.failed}');
+              _statusController.sink.add(Status.failed.name);
+              timer.cancel();
+              break;
+            case Status.expired:
+              pp('\n\n$mm Run status: ${Status.expired}');
+              _statusController.sink.add(Status.expired.name);
+              timer.cancel();
+              break;
+            case Status.requires_action:
+              pp('\n\n$mm Run status: ${Status.requires_action}');
+              _statusController.sink.add(Status.requires_action.name);
+              timer.cancel();
+              break;
+            case null:
+              pp('$mm Run status is null');
+              break;
           }
-        });
+        }
+        pp('\n\n$mm ... result from poll, run '
+            'statusCode: 💛💛💛 ${res.statusCode} 💛💛💛');
+      } else {
+        pp('$mm FAILED: pollThread: statusCode: '
+            '${res.statusCode} msg: ${res.statusMessage}');
+        throw Exception(
+            'Failed to run pollThread; status: ${res.statusCode} ${res.statusMessage}');
       }
     } catch (e, s) {
-      pp('$mm $e $s');
+      pp('$mm  👿👿👿👿$e $s');
       throw Exception('Failed to get Run status: $e');
     }
-    throw Exception('Failed to get Run status: unknown status');
+    return run;
   }
 
   Future<List<OpenAIAssistant>> listAssistants() async {
     var url = '${ChatbotEnvironment.getGeminiUrl()}assistant/listAssistants';
-
     List<OpenAIAssistant> mList = [];
     try {
       Response res = await dioUtil.sendGetRequestWithHeaders(
           path: url, queryParameters: {}, headers: {});
       if (res.statusCode == 200) {
-        List mJson = jsonDecode(res.data);
-        for (var value in mJson) {
+        List inList = res.data;
+        for (var value in inList) {
           mList.add(OpenAIAssistant.fromJson(value));
         }
       } else {
@@ -368,9 +388,11 @@ class OpenAIAssistantService {
             'Failed to list OpenAI assistants; statusCode: ${res.statusCode}');
       }
     } catch (e, s) {
-      pp('$mm $e $s');
+      pp('$mm  👿👿👿👿$e $s');
       throw Exception('Failed to list OpenAI models; $e');
     }
+    pp('$mm assistants listed: 🍎 ${mList.length} 🍎');
+
     return mList;
   }
 
@@ -391,39 +413,62 @@ class OpenAIAssistantService {
             'Failed to list OpenAI models; statusCode: ${res.statusCode}');
       }
     } catch (e, s) {
-      pp('$mm $e $s');
+      pp('$mm  👿👿👿👿$e $s');
       throw Exception('Failed to list OpenAI models');
     }
+    pp('$mm models listed: 🍎 ${mList.length} 🍎');
     return mList;
+  }
+
+  Future<File> downloadFile(String url, String fileName) async {
+    try {
+      var response = await http.get(Uri.parse(url));
+      var bytes = response.bodyBytes;
+      // Get the temporary directory path
+      Directory tempDir = await getTemporaryDirectory();
+      // Create the necessary directories if they don't exist
+      String filePath = '${tempDir.path}/$fileName';
+      await Directory(tempDir.path).create(recursive: true);
+
+      // Write the file to the temporary directory
+      File file = File(filePath);
+      await file.writeAsBytes(bytes);
+      pp('\n\n$mm pdf file downloaded: 💛💛💛 ${(await file.length() / 1024).toStringAsFixed(2)}K bytes: 🍎File: $fileName');
+
+      return file;
+    } catch (e, s) {
+      pp('$mm  👿👿👿👿Error downloading file: $e $s');
+      rethrow;
+    }
   }
 }
 
-const String generalInstructions = ''' 
-Your name is SgelaAI and you are a Tutor and Assistant who will help me study and prepare for exams. The uploaded file contains test and exam questions.  
-You are very knowledgeable and expert in this subject: #SUBJECT. You will focus your responses on this subject.
+const String generalInstructions = '''
+Your name is SgelaAI and you are a Tutor and Assistant who will help me study and prepare for exams. 
+You are friendly and very knowledgeable and expert in this subject: #SUBJECT. You will focus your responses on this subject.
 
-I uploaded a exam paper document containing multiple choice and descriptive questions. 
-Please extract all questions from the document and present them in JSON format following this schema:
+You can scan uploaded exam paper document which contains multiple choice and descriptive questions. 
+You return your responses in markdown format unless specifically requested to respond in json format.
+''';
 
-- fileName (string): The name of the document.
-- sectionName (string): The name of the section where the question is found.
-- subSectionName (string, optional): The name of the subsection, if applicable.
-- questionNumber (string): A unique identifier for the question within its section.
-- subQuestionNumber (string, optional): A unique identifier for sub-questions, if present.
-- questionText (string): The full text of the question.
-- subQuestionText (array of strings, optional): A list containing the text of each sub-question, if applicable.
-- index (integer): A unique index for each question for easy reference.
+const String getQuestionsInstructions = ''' 
+Please scan the uploaded document and find all questions.
+Present them in a strict, valid JSON list that is required for automated processes downstream.
 
-Example:
+Use the following example of the JSON list expected as the response:
+
 [
   {
     "fileName": "Business Studies Exam.pdf",
     "sectionName": "SECTION A",
-    "subSectionName": "",
+    "subSectionName": "Something Here",
     "questionNumber": "1",
-    "subQuestionNumber": "",
+    "subQuestionNumber": "1.1",
     "questionText": "What is the primary goal of business management?",
-    "subQuestionText": [],
+    "subQuestionText": [
+         "1.1.1 What are the tools used by the Federal Reserve in monetary policy?", 
+         "1.1.2 How does the Federal Reserve influence interest rates?"
+    ],
     "index": 1
   },
   {
@@ -433,14 +478,19 @@ Example:
     "questionNumber": "2",
     "subQuestionNumber": "2.1",
     "questionText": "Explain the role of the Federal Reserve.",
-    "subQuestionText": ["2.1.1 What are the tools used by the Federal Reserve in monetary policy?", "2.1.2 How does the Federal Reserve influence interest rates?"],
+    "subQuestionText": [
+      "2.1.1 What are the tools used by the Federal Reserve in monetary policy?", 
+      "2.1.2 How does the Federal Reserve influence interest rates?"
+      ],
     "index": 2
   }
 ]
-It is VERY IMPORTANT that you use this JSON schema when building the list. The list is used by an automated downstream process.
-Can you fill this schema with questions found in the uploaded document?
 
-When you are asked for a study or preparation plan ensure that the plan covers all the question areas. 
+Please REMEMBER that the valid JSON list is required for automated downstream processes and should not be truncated.
+ ''';
+const String studyPlanInstructions =
+    ''' Generate a study or preparation plan ensure that the plan covers all the question topic areas in the document. 
+
 Identify Key Topics for Each Week:
 
 Break down the syllabus or study material into manageable topics that can be covered over the selected period (e.g., 6 weeks).
@@ -459,7 +509,6 @@ Start populating the JSON schema with the information for each week, following t
 For each "week" object, fill in the "weekNumber", "focus", "objectives", "resources", and "activities" with the corresponding details.
 Include YouTube links for research.
 Include textbook links for research.
-Include at least 6 research links for each week
 
 The plan should ALWAYS be created using the JSON schema below: 
 weekNumber will hold an integer value representing the week of study.
@@ -475,9 +524,35 @@ description of what the activity is.
 
 relatedQuestions are a list of the questions involved or handled this week.
 
-The schema for the plan:
-{
-  "weeks": [
+
+Include at least 6 research links for each week
+
+The schema to be used for the plan:
+ [
+    {
+      "weekNumber": Number of the week,
+      "focus": The focus of the week,
+      "objectives": What I want to achieve this week,
+      "researchResources": [
+        {
+          "type": The type of resource,
+          "link": The url to the research content,
+          "description": Description of the research resource
+        }
+      ],
+      "activities": [
+        {
+          "days": The day or days of the activity,
+          "description": Description of the activity
+        }
+      ],
+      "relatedQuestions": [
+        {
+          "questionNumber": Number of the question,
+          "questionText": Text of the question
+        }
+      ]
+    },
     {
       "weekNumber": Number of the week,
       "focus": The focus of the week,
@@ -502,10 +577,9 @@ The schema for the plan:
         }
       ]
     }
-  ]
-}
+  
+ ]
 
-Please REMEMBER to use the JSON schemas above for the question list and the study plan.
-Please REMEMBER that both the list and the plan are required for downstream processes and should not be truncated.
-
-''';
+The plan should be over 6 weeks.
+Please REMEMBER that the list is required for automated downstream processes and should not be truncated.
+ ''';

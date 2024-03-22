@@ -3,11 +3,13 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:sgela_services/data/assistant_data_openai/assistant.dart';
+import 'package:sgela_services/data/assistant_data_openai/question/assistant_question.dart';
 import 'package:sgela_services/data/org_user.dart';
 
 import '../data/branding.dart';
 import '../data/city.dart';
 import '../data/country.dart';
+import '../data/create_index_response.dart';
 import '../data/exam_document.dart';
 import '../data/exam_link.dart';
 import '../data/exam_page_content.dart';
@@ -92,6 +94,7 @@ class FirestoreService {
     List<ExamPageContent> examPageContents =
         await localDataService.getExamPageContents(examLinkId);
     if (examPageContents.isNotEmpty) {
+      examPageContents.sort((a,b) => a.pageIndex!.compareTo(b.pageIndex!));
       return examPageContents;
     }
     var start = DateTime.now();
@@ -117,6 +120,7 @@ class FirestoreService {
 
     var end = DateTime.now();
     pp('$mm Files downloaded: elapsed time: ${end.difference(start).inSeconds} seconds');
+    examPageContents.sort((a,b) => a.pageIndex!.compareTo(b.pageIndex!));
     return examPageContents;
   }
 
@@ -167,6 +171,23 @@ class FirestoreService {
     var colRef = firebaseFirestore.collection('AIResponseRating');
     await colRef.add(rating.toJson());
   }
+
+  Future addPineconeIndex(PineconeIndex index) async {
+    var colRef = firebaseFirestore.collection('PineconeIndex');
+    await colRef.add(index.toJson());
+  }
+  Future<List<PineconeIndex>> getPineconeIndexes() async {
+    List<PineconeIndex> indexes = [];
+    var querySnapshot = await firebaseFirestore
+        .collection('PineconeIndex')
+        .get();
+    for (var s in querySnapshot.docs) {
+      var index = PineconeIndex.fromJson(s.data());
+      indexes.add(index);
+    }
+    return indexes;
+  }
+
   Future addOpenAIAssistant(OpenAIAssistant assistant) async {
     var colRef = firebaseFirestore.collection('OpenAIAssistant');
     await colRef.add(assistant.toJson());
@@ -191,7 +212,32 @@ class FirestoreService {
     var res = await colRef.add(sponsoreeActivity.toJson());
     pp('$mm ... addSponsoreeActivity done; path: ${res.path}');
   }
+  Future addQuestions(List<AssistantQuestion>  assistantQuestions) async {
+    var colRef = firebaseFirestore.collection('AssistantQuestion');
+    pp('$mm ... adding addQuestions to Firestore: ${assistantQuestions.length}');
+    int cnt = 1;
+    for (var q in assistantQuestions) {
+      var res = await colRef.add(q.toJson());
+      pp('$mm ... question added to Firestore :🔵🔵 #$cnt; path: ${res.path}');
+      cnt++;
+    }
+  }
 
+  Future<List<AssistantQuestion>> getAssistantQuestions(
+      int examLinkId) async {
+    var querySnapshot = await firebaseFirestore
+        .collection('AssistantQuestion')
+        .where('examLinkId', isEqualTo: examLinkId)
+        .orderBy('index')
+        .get();
+
+    List<AssistantQuestion> questions = [];
+    for (var s in querySnapshot.docs) {
+      var activity = AssistantQuestion.fromJson(s.data());
+      questions.add(activity);
+    }
+    return questions;
+  }
   Future<List<SponsoreeActivity>> getSponsoreeActivity(
       int organizationId) async {
     var querySnapshot = await firebaseFirestore

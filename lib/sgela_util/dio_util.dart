@@ -51,7 +51,6 @@ class DioUtil {
       {required String path,
       required Map<String, dynamic> queryParameters,
       required dynamic headers}) async {
-
     pp('$mm Dio sendGetRequestWithHeaders ...: 🍎🍎🍎 path: $path 🍎🍎');
     try {
       Response response;
@@ -71,18 +70,23 @@ class DioUtil {
     }
   }
 
-  Future<Response> sendGetRequest({
-      required String path, required Map<String, dynamic> queryParameters}) async {
-    pp('$mm Dio starting ...: 🍎🍎🍎 path: $path 🍎🍎');
+  Future<Response> sendGetRequest(
+      {required String path,
+      required Map<String, dynamic> params}) async {
+    pp('$mm Dio starting ...: 🍎🍎🍎 path: $path 🍎 '
+        '\n 🍎params: $params 🍎');
     try {
       Response response;
-      // The below request is the same as above.
-
-      response = await dio.get(
+      response = await dio
+          .get(
         path,
-        queryParameters: queryParameters,
+        queryParameters: params,
         options: Options(responseType: ResponseType.json),
-      );
+      )
+          .catchError((error, stackTrace) {
+        pp('$mm Error occurred during the GET request: '
+            '👿 $error 👿\n 👿$stackTrace 👿');
+      });
 
       pp('$mm Dio network response: 🥬🥬🥬🥬🥬🥬 status code: ${response.statusCode}');
       return response;
@@ -93,33 +97,35 @@ class DioUtil {
     }
   }
 
-  Future<Response> sendPostRequest({required String path, required dynamic body}) async {
+  Future<Response> sendPostRequest({
+    required String path,
+    required dynamic body,
+    dynamic headers,
+  }) async {
     pp('$mm Dio sendPostRequest ...: 🍎🍎🍎 path: $path 🍎🍎');
     try {
-      Response response;
-      response = await dio
+      Response response = await dio
           .post(
-            path,
-            data: body,
-            options: Options(responseType: ResponseType.json),
-            onReceiveProgress: (count, total) {
-              pp('$mm onReceiveProgress: count: $count total: $total');
-            },
-            onSendProgress: (count, total) {
-              pp('$mm onSendProgress: count: $count total: $total');
-            },
-          )
-          .timeout(const Duration(seconds: 300))
-          .catchError((error, stackTrace) {
-            pp('$mm Error occurred during the POST request: $error');
-          });
-      pp('$mm .... network POST response, 💚status code: ${response.statusCode} 💚💚');
+        path,
+        data: body,
+        options: Options(responseType: ResponseType.json, headers: headers),
+        onReceiveProgress: (count, total) {
+          pp('$mm onReceiveProgress: count: $count total: $total');
+        },
+        onSendProgress: (count, total) {
+          pp('$mm onSendProgress: count: $count total: $total');
+        },
+      )
+          .timeout(const Duration(seconds: 300));
+
+      pp('$mm .... network POST response, 💚status code: ${response.statusCode} 💚💚 $path');
       return response;
-    } catch (e) {
+    } catch (e, stackTrace) {
       pp('$mm .... network POST error response, '
           '👿👿👿👿 $e 👿👿👿👿');
-      pp(e);
+      pp(stackTrace);
       rethrow;
     }
   }
 }
+

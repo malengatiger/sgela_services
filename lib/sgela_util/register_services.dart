@@ -17,6 +17,7 @@ import 'package:sgela_services/sgela_util/sponsor_prefs.dart';
 import 'package:sgela_services/sgela_util/widget_prefs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../embeddings/langchain_service_impl.dart';
 import '../repositories/basic_repository.dart';
 import '../services/accounting_service.dart';
 import '../services/agriculture_service.dart';
@@ -60,8 +61,14 @@ Future<void> registerServices(
 
   var mistralService = MistralService(ChatbotEnvironment.getMistralAPIKey());
 
+  var langChainService = LangChainServiceImpl(dioUtil);
+  langChainService.init();
+
   GetIt.instance.registerLazySingleton<OpenAIAssistantService>(
           () => OpenAIAssistantService(dioUtil));
+
+  GetIt.instance.registerLazySingleton<LangChainServiceImpl>(
+          () => langChainService);
 
   GetIt.instance.registerLazySingleton<MistralServiceClient>(
       () => MistralServiceClient(mistralService));

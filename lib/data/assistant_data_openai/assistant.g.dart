@@ -21,6 +21,8 @@ OpenAIAssistant _$OpenAIAssistantFromJson(Map<String, dynamic> json) =>
           (json['file_ids'] as List<dynamic>).map((e) => e as String).toList(),
       metadata: json['metadata'],
       description: json['description'] as String?,
+      examLinkId: json['examLinkId'] as int?,
+      examLinkTitle: json['examLinkTitle'] as String?,
       subjectTitle: json['subjectTitle'] as String?,
     );
 
@@ -37,6 +39,8 @@ Map<String, dynamic> _$OpenAIAssistantToJson(OpenAIAssistant instance) =>
       'file_ids': instance.fileIds,
       'metadata': instance.metadata,
       'description': instance.description,
+      'examLinkTitle': instance.examLinkTitle,
+      'examLinkId': instance.examLinkId,
     };
 
 Tools _$ToolsFromJson(Map<String, dynamic> json) => Tools(

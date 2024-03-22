@@ -40,7 +40,7 @@ Content _$ContentFromJson(Map<String, dynamic> json) => Content(
       type: json['type'] as String?,
       text: json['text'] == null
           ? null
-          : Text.fromJson(json['text'] as Map<String, dynamic>),
+          : MyText.fromJson(json['text'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ContentToJson(Content instance) => <String, dynamic>{
@@ -48,12 +48,12 @@ Map<String, dynamic> _$ContentToJson(Content instance) => <String, dynamic>{
       'text': instance.text?.toJson(),
     };
 
-Text _$TextFromJson(Map<String, dynamic> json) => Text(
+MyText _$MyTextFromJson(Map<String, dynamic> json) => MyText(
       value: json['value'] as String?,
       annotations: json['annotations'] as List<dynamic>?,
     );
 
-Map<String, dynamic> _$TextToJson(Text instance) => <String, dynamic>{
+Map<String, dynamic> _$MyTextToJson(MyText instance) => <String, dynamic>{
       'value': instance.value,
       'annotations': instance.annotations,
     };

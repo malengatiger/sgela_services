@@ -42,7 +42,7 @@ class Message {
 @JsonSerializable(explicitToJson: true)
 class Content {
   String? type;
-  Text? text;
+  MyText? text;
 
    Content({
     required this.type,
@@ -56,19 +56,19 @@ class Content {
 }
 
 @JsonSerializable(explicitToJson: true)
-class Text {
+class MyText {
   String? value;
   List<dynamic>? annotations;
 
-   Text({
+   MyText({
     required this.value,
     required this.annotations,
   });
 
-  factory Text.fromJson(Map<String, dynamic> json) =>
-      _$TextFromJson(json);
+  factory MyText.fromJson(Map<String, dynamic> json) =>
+      _$MyTextFromJson(json);
 
-  Map<String, dynamic> toJson() => _$TextToJson(this);
+  Map<String, dynamic> toJson() => _$MyTextToJson(this);
 }
 
 

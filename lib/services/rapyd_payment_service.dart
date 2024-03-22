@@ -20,7 +20,7 @@ class RapydPaymentService {
     pp('$mm ... getPaymentMethodRequiredFields .... type: $type');
 
     var raw = await dioUtil.sendGetRequest(path:
-        "${prefix}rapyd/getPaymentMethodRequiredFields?type=$type", queryParameters: {});
+        "${prefix}rapyd/getPaymentMethodRequiredFields?type=$type", params: {});
     RequiredFields reqFields = RequiredFields.fromJson(raw.data);
     int cnt = 1;
 
@@ -65,7 +65,7 @@ class RapydPaymentService {
     //   return pms;
     // }
     Response raw = await dioUtil.sendGetRequest(
-        path: "${prefix}rapyd/getCountryPaymentMethods?countryCode=$countryCode",  queryParameters: {},);
+        path: "${prefix}rapyd/getCountryPaymentMethods?countryCode=$countryCode",  params: {},);
     List mList = raw.data;
     int cnt = 1;
     for (var m in mList) {
@@ -103,7 +103,7 @@ class RapydPaymentService {
   Future addCustomerPaymentMethod(String customer, String type) async {
     pp(' ... addCustomerPaymentMethod ...');
     var url = '${prefix}rapyd/addCustomerPaymentMethod';
-    var resp = await dioUtil.sendGetRequest(path: url, queryParameters:  {
+    var resp = await dioUtil.sendGetRequest(path: url, params:  {
       "customer": customer,
       "type": type,
     });
