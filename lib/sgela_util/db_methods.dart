@@ -58,7 +58,7 @@ class DBMethods {
           sponsoreeName: sponsoree!.sgelaUserName,
           organizationName: sponsoree.organizationName,
           model: model,
-          totalTokens: totalTokens);
+          totalTokens: totalTokens, promptTokens: 0, completionTokens: 0);
       firestoreService.addTokensUsed(tokensUsed);
       pp('🥦🥦🥦 tokens used in session and added to db: $totalTokens ...... '
           '🍎🍎\n🍎🍎${tokensUsed.toJson()} ');

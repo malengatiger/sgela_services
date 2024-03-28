@@ -94,7 +94,7 @@ class FirestoreService {
     List<ExamPageContent> examPageContents =
         await localDataService.getExamPageContents(examLinkId);
     if (examPageContents.isNotEmpty) {
-      examPageContents.sort((a,b) => a.pageIndex!.compareTo(b.pageIndex!));
+      examPageContents.sort((a, b) => a.pageIndex!.compareTo(b.pageIndex!));
       return examPageContents;
     }
     var start = DateTime.now();
@@ -120,7 +120,7 @@ class FirestoreService {
 
     var end = DateTime.now();
     pp('$mm Files downloaded: elapsed time: ${end.difference(start).inSeconds} seconds');
-    examPageContents.sort((a,b) => a.pageIndex!.compareTo(b.pageIndex!));
+    examPageContents.sort((a, b) => a.pageIndex!.compareTo(b.pageIndex!));
     return examPageContents;
   }
 
@@ -157,9 +157,8 @@ class FirestoreService {
 
   Future<List<OpenAIAssistant>> getOpenAIAssistants() async {
     List<OpenAIAssistant> assistants = [];
-    var querySnapshot = await firebaseFirestore
-        .collection('OpenAIAssistant')
-        .get();
+    var querySnapshot =
+        await firebaseFirestore.collection('OpenAIAssistant').get();
     for (var s in querySnapshot.docs) {
       var assistant = OpenAIAssistant.fromJson(s.data());
       assistants.add(assistant);
@@ -176,11 +175,11 @@ class FirestoreService {
     var colRef = firebaseFirestore.collection('PineconeIndex');
     await colRef.add(index.toJson());
   }
+
   Future<List<PineconeIndex>> getPineconeIndexes() async {
     List<PineconeIndex> indexes = [];
-    var querySnapshot = await firebaseFirestore
-        .collection('PineconeIndex')
-        .get();
+    var querySnapshot =
+        await firebaseFirestore.collection('PineconeIndex').get();
     for (var s in querySnapshot.docs) {
       var index = PineconeIndex.fromJson(s.data());
       indexes.add(index);
@@ -192,6 +191,7 @@ class FirestoreService {
     var colRef = firebaseFirestore.collection('OpenAIAssistant');
     await colRef.add(assistant.toJson());
   }
+
   Future addTokensUsed(TokensUsed tokensUsed) async {
     var colRef = firebaseFirestore.collection('TokensUsed');
     await colRef.add(tokensUsed.toJson());
@@ -212,7 +212,8 @@ class FirestoreService {
     var res = await colRef.add(sponsoreeActivity.toJson());
     pp('$mm ... addSponsoreeActivity done; path: ${res.path}');
   }
-  Future addQuestions(List<AssistantQuestion>  assistantQuestions) async {
+
+  Future addQuestions(List<AssistantQuestion> assistantQuestions) async {
     var colRef = firebaseFirestore.collection('AssistantQuestion');
     pp('$mm ... adding addQuestions to Firestore: ${assistantQuestions.length}');
     int cnt = 1;
@@ -223,8 +224,7 @@ class FirestoreService {
     }
   }
 
-  Future<List<AssistantQuestion>> getAssistantQuestions(
-      int examLinkId) async {
+  Future<List<AssistantQuestion>> getAssistantQuestions(int examLinkId) async {
     var querySnapshot = await firebaseFirestore
         .collection('AssistantQuestion')
         .where('examLinkId', isEqualTo: examLinkId)
@@ -238,6 +238,7 @@ class FirestoreService {
     }
     return questions;
   }
+
   Future<List<SponsoreeActivity>> getSponsoreeActivity(
       int organizationId) async {
     var querySnapshot = await firebaseFirestore

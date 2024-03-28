@@ -124,6 +124,7 @@ class LangChainServiceImpl implements LangChainService {
     }
   }
 
+  List<PineconeIndex> pinecodeIndexes = [];
   Future<void> _getIndexes() async {
     var resp =
         await HttpUtility.get(url: '$pineconeUrl/indexes', headers: headers);
@@ -141,12 +142,12 @@ class LangChainServiceImpl implements LangChainService {
     }
     //
     FirestoreService firestoreService = GetIt.instance<FirestoreService>();
-    var fsIndexes = await firestoreService.getPineconeIndexes();
-    pp('$mm 🍎🍎indexes from Firestore: 🍎🍎${fsIndexes.length} 🍎🍎\n');
-
-    for (var ix in fsIndexes) {
-      pp('$mm 🍎🍎index from Firestore: 🍎🍎${ix.toJson()} 🍎🍎\n');
-    }
+    pinecodeIndexes = await firestoreService.getPineconeIndexes();
+    // pp('$mm 🍎🍎indexes from Firestore: 🍎🍎${pinecodeIndexes.length} 🍎🍎\n');
+    //
+    // for (var ix in pinecodeIndexes) {
+    //   pp('$mm 🍎🍎index from Firestore: 🍎🍎${ix.toJson()} 🍎🍎\n');
+    // }
   }
 
   Future<List<Document>> _fetchDocumentsForLoading(int examLinkId) async {
@@ -246,53 +247,84 @@ class LangChainServiceImpl implements LangChainService {
   Future<String> queryPineConeVectorStore(
       String indexName, String query) async {
     pp('$mm queryPineConeVectorStore: index: $indexName - query: $query');
-
+    _buildHeaders();
     try {
-      final index = await pineConeClient.describeIndex(
-          indexName: indexName, environment: environment);
-      pp('$mm pinecone index: 🍎🍎 ${index.toJson()}');
+      final index = await _describeIndex(indexName);
+      if (index == null) {
+        throw Exception('Pinecone index $indexName not found');
+      }
+
+      String url = 'https://${index.host}/query';
+      pp('$mm queryPineConeVectorStore  🍎🍎 openAIEmbeddings.embedQuery about to be called ...');
 
       final queryEmbedding = await openAIEmbeddings.embedQuery(query);
-      final result = await pineConeClient.queryVectors(
-        indexName: index.name,
-        projectId: index.projectId,
-        environment: index.environment,
-        request: QueryRequest(
-          topK: 20,
-          vector: queryEmbedding,
-          includeMetadata: true,
-          includeValues: true,
-        ),
+
+      pp('$mm queryPineConeVectorStore index: 🍎🍎 ${index.name} '
+          'openAIEmbeddings.embedQuery found, queryEmbedding.length: ${queryEmbedding.length}');
+
+      var queryRequest = QueryRequest(
+        topK: 20,
+        vector: queryEmbedding,
+        includeMetadata: true,
+        includeValues: true,
       );
-      pp('$mm pineConeClient.queryVectors result: 🍎🍎 ${result.toJson()}');
 
-      if (result.matches.isNotEmpty) {
-        final concatPageContent = result.matches.map((vectorMatch) {
-          if (vectorMatch.metadata == null) return '';
-          // check if the metadata has a 'pageContent' key
-          if (vectorMatch.metadata!.containsKey('pageContent')) {
-            var content = vectorMatch.metadata!['pageContent'];
-            pp('\n\n$mm return vectorMatch.metadata pageContent: 🍎🍎\n $content');
-            return content;
-          } else {
-            return '';
-          }
-        }).join(' ');
+      pp('$mm body is queryRequest: 🍎🍎 ${queryRequest.toJson()} ');
 
-        final docChain = StuffDocumentsQAChain(llm: openAI);
-        final response = await docChain.call({
-          'input_documents': [Document(pageContent: concatPageContent)],
-          'question': query,
-        });
+      var resp = await HttpUtility.post(
+          url: url, body: queryRequest.toJson(), headers: headers);
+      if (resp.statusCode == 200 || resp.statusCode == 201) {
+        pp('$mm pineConeClient.queryVectors status: 🍎🍎 '
+            '✅${resp.statusCode} \n🍎🍎body: ${resp.body} ✅');
 
-        pp('\n\n$mm .... docChain.call response:  🔴 🔵 $response  🔴 🔵\n\n');
+        var queryResponse = QueryResponse.fromJson(jsonDecode(resp.body));
+        if (queryResponse.matches.isNotEmpty) {
+          pp('$mm queryResponse.matches.isNotEmpty: 🍎 ${queryResponse.matches.length} 🍎 ');
 
-        return response['output'];
+          final concatPageContent = queryResponse.matches.map((vectorMatch) {
+            if (vectorMatch.metadata == null) return '';
+            // check if the metadata has a 'pageContent' key
+            if (vectorMatch.metadata!.containsKey('pageContent')) {
+              var content = vectorMatch.metadata!['pageContent'];
+              pp('\n\n$mm return vectorMatch.metadata pageContent: 🍎🍎\n $content');
+              return content;
+            } else {
+              return '';
+            }
+          }).join(' ');
+
+          pp('$mm StuffDocumentsQAChain and then send query to LLM: '
+              '$query 🍎🍎 ... call chain!');
+
+          final promptTemplate = ChatPromptTemplate.fromTemplates([
+            (
+              ChatMessageType.system,
+              "You are a helpful AI assistant and you are good at finding questions in text."
+            ),
+            (
+              ChatMessageType.human,
+              'Help me extract questions from text and producing a list'
+            ),
+          ]);
+          final docChain =
+              StuffDocumentsQAChain(llm: openAI, prompt: promptTemplate);
+          final response = await docChain.call({
+            'input_documents': [Document(pageContent: concatPageContent)],
+            'question': query,
+          });
+
+          pp('\n\n$mm .... docChain.call response: 🔴🔵 $response  🔴🔵\n\n');
+          return response['output'];
+        } else {
+          return 'No results found';
+        }
       } else {
-        return 'No results found';
+        pp('$mm ERROR statusCode: ${resp.statusCode} - ${resp.body}');
+        throw Exception(
+            'Something fell downstairs, Boss! statusCode: ${resp.statusCode}');
       }
     } catch (e, s) {
-      pp('$mm $e $s');
+      pp('$mm queryPineConeVectorStore: ERROR: $kk $e $s $kk');
       throw Exception('Error querying pinecone index');
     }
   }
@@ -310,14 +342,12 @@ class LangChainServiceImpl implements LangChainService {
         final txtPath = doc.metadata['source'] as String;
         final text = doc.pageContent;
 
-        const textSplitter = RecursiveCharacterTextSplitter(chunkSize: 1000);
+        const textSplitter = RecursiveCharacterTextSplitter(chunkSize: 1000, chunkOverlap: 200);
         final chunks = textSplitter.createDocuments([text]);
 
         pp('$mm ... Calling OpenAI\'s Embedding endpoint documents with ${chunks.length} text chunks ...');
-
-        for (var chunkVector in chunkVectors) {}
-        pp('$mm updatePineConeIndex: ... embedding documents; mDocs: ${mDocs.length}');
-        final embeddingArrays = await openAIEmbeddings.embedDocuments(mDocs);
+        pp('$mm updatePineConeIndex: ... embedding documents; chunks: ${chunks.length}');
+        final embeddingArrays = await openAIEmbeddings.embedDocuments(chunks);
         pp('$mm updatePineConeIndex: ... embedding documents; embeddingArrays: ${embeddingArrays.length}');
         if (embeddingArrays.isEmpty) {
           pp('$mm ERROR:  👿 👿 embeddingArrays not created, isEmpty!!  👿 👿');
@@ -325,6 +355,7 @@ class LangChainServiceImpl implements LangChainService {
         } else {
           pp('$mm updatePineConeIndex: 🔵🔵🔵 ... Creating ${chunks.length} '
               'vectors array with id, values, and metadata...');
+
           await _processChunksInBatches(
               chunks: chunks,
               embeddingArrays: embeddingArrays,
@@ -418,7 +449,8 @@ class LangChainServiceImpl implements LangChainService {
     }
   }
 
-  Future<int> _sendVectors(PineconeIndex index, Map<String,Object> body) async {
+  Future<int> _sendVectors(
+      PineconeIndex index, Map<String, Object> body) async {
     pp('$mm _sendVectors: ...... vectors to be sent for index:'
         ' ${index.name},  🔵🔵🔵 vectors: ${body.length} 🔵🔵🔵\n\n');
     _buildHeaders();
@@ -457,6 +489,7 @@ class LangChainServiceImpl implements LangChainService {
 
     return validTextBuffer.toString();
   }
+
   static const kk = '👿👿👿👿';
 
   @override
@@ -471,8 +504,8 @@ class LangChainServiceImpl implements LangChainService {
       _printIndexes();
       bool found = await _findIndex(indexName);
       if (found) {
-        pp('$mm Embeddings have already been created for 💠💠${examLink.subject?.title} '
-            ': ${examLink.documentTitle} ${examLink.title}');
+        pp('\n$mm Embeddings have already been created for 💠💠${examLink.subject?.title} '
+            ': ${examLink.documentTitle} ${examLink.title}\n\n');
         return true;
       }
       pp('\n\n$mm ... create pinecone embeddings index: $indexName .....');
@@ -486,15 +519,15 @@ class LangChainServiceImpl implements LangChainService {
   }
 
   _printIndexes() async {
-    pp('\n\n\n$mm 🔵🔵🔵 print Pinecone indices: ${indexes.length}');
-    for (var ix in indexes) {
-      pp('$mm 🔵🔵 pinecone index: ${ix.toJson()} 🔵');
+    pp('\n\n\n$mm 🔵🔵🔵 🍎existing Pinecone indices: 🍎 ${indexes.length} 🍎');
+    for (var ix in pinecodeIndexes) {
+      pp('$mm 🔵🔵🍎 pinecone index: ${ix.name} 🔵 ${ix.subject} - ${ix.examTitle} 🍎');
     }
   }
 
   Future<bool> _findIndex(String indexName) async {
     bool found = false;
-    for (var ix in indexes) {
+    for (var ix in pinecodeIndexes) {
       if (ix.name == indexName) {
         found = true;
       }

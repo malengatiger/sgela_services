@@ -20,17 +20,17 @@ class Message {
   String? runId;
   dynamic metadata;
 
-   Message({
-    required this.id,
-    required this.object,
-    required this.createdAt,
-    required this.threadId,
+  Message({
+    this.id,
+    this.object,
+    this.createdAt,
+    this.threadId,
     required this.role,
     required this.content,
     required this.fileIds,
     required this.assistantId,
-    required this.runId,
-    required this.metadata,
+    this.runId,
+    this.metadata,
   });
 
   factory Message.fromJson(Map<String, dynamic> json) =>
@@ -44,7 +44,7 @@ class Content {
   String? type;
   MyText? text;
 
-   Content({
+  Content({
     required this.type,
     required this.text,
   });
@@ -60,15 +60,12 @@ class MyText {
   String? value;
   List<dynamic>? annotations;
 
-   MyText({
+  MyText({
     required this.value,
     required this.annotations,
   });
 
-  factory MyText.fromJson(Map<String, dynamic> json) =>
-      _$MyTextFromJson(json);
+  factory MyText.fromJson(Map<String, dynamic> json) => _$MyTextFromJson(json);
 
   Map<String, dynamic> toJson() => _$MyTextToJson(this);
 }
-
-

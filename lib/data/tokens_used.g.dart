@@ -13,6 +13,8 @@ TokensUsed _$TokensUsedFromJson(Map<String, dynamic> json) => TokensUsed(
       sponsoreeName: json['sponsoreeName'] as String?,
       organizationName: json['organizationName'] as String?,
       model: json['model'] as String?,
+      promptTokens: json['promptTokens'] as int?,
+      completionTokens: json['completionTokens'] as int?,
       totalTokens: json['totalTokens'] as int?,
     );
 
@@ -25,4 +27,6 @@ Map<String, dynamic> _$TokensUsedToJson(TokensUsed instance) =>
       'organizationName': instance.organizationName,
       'model': instance.model,
       'totalTokens': instance.totalTokens,
+      'promptTokens': instance.promptTokens,
+      'completionTokens': instance.completionTokens,
     };

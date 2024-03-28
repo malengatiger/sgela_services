@@ -15,10 +15,14 @@ import 'package:sgela_services/data/assistant_data_openai/model.dart';
 import 'package:sgela_services/data/assistant_data_openai/run.dart';
 import 'package:sgela_services/data/assistant_data_openai/thread.dart';
 import 'package:sgela_services/data/exam_link.dart';
+import 'package:sgela_services/data/tokens_used.dart';
 import 'package:sgela_services/services/firestore_service.dart';
 import 'package:sgela_services/sgela_util/dio_util.dart';
 import 'package:sgela_services/sgela_util/environment.dart';
 import 'package:sgela_services/sgela_util/functions.dart';
+
+import '../data/assistant_data_openai/run_details.dart';
+import '../data/sponsoree.dart';
 
 class OpenAIAssistantService {
   final DioUtil dioUtil;
@@ -174,7 +178,7 @@ class OpenAIAssistantService {
 
   Future<Message> createMessage(
       {required String threadId, required String text}) async {
-    pp('$mm ....... createMessage:  threadId: $threadId message: $text');
+    pp('$mm ....... createMessage:  threadId: $threadId .... text length: ${text.length}');
 
     var url = '${ChatbotEnvironment.getGeminiUrl()}assistant/createMessage';
 
@@ -189,7 +193,7 @@ class OpenAIAssistantService {
           await dioUtil.sendGetRequest(path: url, params: messageBody);
       if (res.statusCode == 200 || res.statusCode == 201) {
         message = Message.fromJson(res.data);
-        pp('$mm created message: 🍎 ${message.toJson()} 🍎');
+        pp('$mm created message, id: 🍎 ${message.id} 🍎');
         return message;
       } else {
         pp('$mm FAILED: create message: statusCode: '
@@ -201,6 +205,48 @@ class OpenAIAssistantService {
     } catch (e, s) {
       pp('$mm  👿👿👿👿$e $s');
       throw Exception('Failed to create message; error: $e');
+    }
+  }
+
+  /*
+    Message.Beta.Threads.Messages.ThreadMessage
+    messages: [
+        {role: 'user', content: '', metadata: {}, file_ids: []},
+      ],
+
+    */
+  Future<Thread> createThreadWithMessages(List<dynamic> messages) async {
+    var url =
+        '${ChatbotEnvironment.getGeminiUrl()}assistant/createThreadWithMessages';
+    pp('\n\n$mm ....createThreadWithMessages  thread .............\n');
+
+    Thread? thread;
+    List<dynamic> mList = [];
+    for (var msg in messages) {
+      mList.add({
+        'role': msg['role'],
+        'content': msg['content'],
+        'metadata': msg['metadata'],
+        'file_ids': [],
+      });
+    }
+    Map<String, dynamic> body = {'metadata': {}, 'messages': mList};
+
+    try {
+      Response res = await dioUtil.sendPostRequest(path: url, body: body);
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        thread = Thread.fromJson(res.data);
+        pp('\n$mm created thread: 🍎🍎🍎🍎 ${thread.toJson()} 🍎\n');
+        return thread;
+      } else {
+        pp('$mm FAILED: create thread: statusCode: '
+            '${res.statusCode} msg: ${res.statusMessage}');
+        throw Exception(
+            'Failed to create thread; statusCode: ${res.statusCode}');
+      }
+    } catch (e, s) {
+      pp('$mm $e $s');
+      throw Exception('Failed to create thread; error: $e');
     }
   }
 
@@ -241,7 +287,7 @@ class OpenAIAssistantService {
       });
       if (res.statusCode == 200 || res.statusCode == 201) {
         run = Run.fromJson(res.data);
-        pp('\n\n$mm ... run thread returned, '
+        pp('\n\n$mm ... thread Run returned, '
             'will start polling ... 🔵🔵🔵🔵🔵🔵 run: ${run.id} ${run.status} ${run.threadId}');
       } else {
         pp('$mm FAILED: run thread: statusCode: '
@@ -254,6 +300,64 @@ class OpenAIAssistantService {
       throw Exception('Failed to run thread; error: $e');
     }
     return run;
+  }
+
+  Future getTokens(
+      {required Sponsoree sponsoree,
+      required String threadId,
+      required String model}) async {
+    var runs = await _getThreadRuns(threadId: threadId);
+    int total = 0, promptTotal = 0, completionTotal = 0;
+
+    for (var r in runs) {
+      total += r.usage!.totalTokens!;
+      promptTotal += r.usage!.promptTokens!;
+      completionTotal += r.usage!.completionTokens!;
+    }
+
+    var tu = TokensUsed(
+        organizationId: sponsoree.organizationId,
+        sponsoreeId: sponsoree.id,
+        date: DateTime.now().toUtc().toIso8601String(),
+        sponsoreeName: sponsoree.sgelaUserName,
+        organizationName: sponsoree.organizationName,
+        promptTokens: promptTotal,
+        completionTokens: completionTotal,
+        model: model,
+        totalTokens: total);
+
+    FirestoreService firestoreService = GetIt.instance<FirestoreService>();
+    await firestoreService.addTokensUsed(tu);
+  }
+
+  Future<List<RunDetails>> _getThreadRuns({required String threadId}) async {
+    List<RunDetails> runs = [];
+    var url = '${ChatbotEnvironment.getGeminiUrl()}assistant/getThreadRuns';
+
+    try {
+      Response res = await dioUtil
+          .sendGetRequest(path: url, params: {'threadId': threadId});
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        List json = res.data;
+        for (var value in json) {
+          runs.add(RunDetails.fromJson(value));
+        }
+        pp('$mm ... getThreadRuns found: ${runs.length}');
+        for (var run in runs) {
+          pp('$mm run: ${run.toJson()}');
+        }
+        return runs;
+      } else {
+        pp('$mm ... getThreadRuns 👿👿'
+            'BAD RESPONSE: statusCode: ${res.statusCode} '
+            '${res.statusMessage}');
+      }
+    } catch (e, s) {
+      pp('$mm  👿👿👿👿$e $s');
+      throw Exception('Failed to getThreadRuns; error: $e');
+    }
+
+    return runs;
   }
 
   Future<List<Message>> getThreadMessages(
@@ -451,7 +555,7 @@ You can scan uploaded exam paper document which contains multiple choice and des
 You return your responses in markdown format unless specifically requested to respond in json format.
 ''';
 
-const String getQuestionsInstructions = ''' 
+const String getQuestionsInstructions = '''
 Please scan the uploaded document and find all questions.
 Present them in a strict, valid JSON list that is required for automated processes downstream.
 

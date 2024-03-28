@@ -291,9 +291,11 @@ class Prefs {
   }
 //
 }
-const modelAnthropic = 'Claude';
-
+const modelClaude = 'Claude';
 const modelGeminiAI = 'Gemini';
 const modelOpenAI = 'OpenAI';
 const modelMistral = 'Mistral';
 const modelPerplexityAI = 'PerplexityA';
+const modelLlama2 = 'llama2-70b-4096';
+const modelMixtral = 'mixtral-8x7b-32768';
+const modelGemma = 'gemma-7b-it';

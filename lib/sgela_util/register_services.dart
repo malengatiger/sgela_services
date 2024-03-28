@@ -28,6 +28,7 @@ import '../services/conversion_service.dart';
 import '../services/firestore_service.dart';
 import '../services/firestore_service_sponsor.dart';
 import '../services/gemini_chat_service.dart';
+import '../services/groq_service.dart';
 import '../services/local_data_service.dart';
 import '../services/math_service.dart';
 import '../services/physics_service.dart';
@@ -69,6 +70,9 @@ Future<void> registerServices(
 
   GetIt.instance.registerLazySingleton<LangChainServiceImpl>(
           () => langChainService);
+
+  GetIt.instance.registerLazySingleton<GroqService>(
+          () => GroqService(dioUtil));
 
   GetIt.instance.registerLazySingleton<MistralServiceClient>(
       () => MistralServiceClient(mistralService));
