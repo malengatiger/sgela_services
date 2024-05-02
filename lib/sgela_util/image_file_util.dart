@@ -1,41 +1,114 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'package:image/image.dart';
 import 'package:mime/mime.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:universal_io/io.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../data/exam_link.dart';
 import '../data/exam_page_content.dart';
 import 'functions.dart';
-
+import 'dart:async';
+import 'dart:html' as html;
+import 'package:flutter/foundation.dart';
 class ImageFileUtil {
   static const mm = '🌿🌿🌿 ImageFileUtil 😎😎';
 
-  static Future<List<File>> getFiles(ExamLink examLink) async {
-    return await downloadZipFile(examLink.pageImageZipUrl!);
-  }
-
-  static Future<List<File>> downloadZipFile(String url) async {
-    pp('$mm .... downloading file .........................\n$url ');
+  static Future<List<File>> downloadZipFileWeb({required String url, required int examLinkId}) async {
+    pp('$mm .... downloadZipFileWeb:  🍐downloading file .........................\n$url ');
     var start = DateTime.now();
+
+    List<File> files = [];
     try {
       var response = await http.get(Uri.parse(url));
       var bytes = response.bodyBytes;
-      Directory tempDir = Directory.systemTemp;
-      var mFile = File('${tempDir.path}/someFile.zip');
+      // var file = File('file.zip');
+      // await file.writeAsBytes(bytes);
+      // pp('$mm zip file created: ${await file.length()} - ${file.path}');
+      if (kIsWeb) {
+        pp('$mm .... kIsWeb: downloadZipFileWeb');
+        html.window.localStorage['zip_$examLinkId.zip'] = String.fromCharCodes(bytes);
+        var end = DateTime.now();
+        pp('$mm zip file downloaded: '
+            '${(bytes.length / 1024 / 1024).toStringAsFixed(2)}MB bytes; '
+            'elapsed: ${end.difference(start).inSeconds} seconds');
+      }
+
+      // files =  await _unpackZipFileWeb(file, examLinkId);
+      return files;
+    } catch (e,s) {
+      pp('$mm 👽👽👽👽👽👽👽Error downloading file: $e $s 👽');
+      throw Exception('Unable to download file 👽$e 👽');
+    }
+  }
+  static Future<List<File>> downloadZipFile({required String url, required int examLinkId}) async {
+    pp('$mm .... downloadZipFile: downloading file .........................\n$url ');
+    var start = DateTime.now();
+    try {
+      //Directory tempDir = Directory.systemTemp;
+
+      var response = await http.get(Uri.parse(url));
+      var bytes = response.bodyBytes;
+      var mFile = File('zips/zip_$examLinkId.zip');
       mFile.writeAsBytesSync(bytes);
       var end = DateTime.now();
-      pp('$mm file: ${(await mFile.length()) / 1024}K bytes '
+      pp('$mm zip file downloaded: '
+          '${(await mFile.length()) / 1024 / 1024}MB bytes; '
           'elapsed: ${end.difference(start).inSeconds} seconds');
-      return unpackZipFile(mFile);
-    } catch (e) {
-      pp('Error downloading file: $e');
+      return _unpackZipFile(mFile, examLinkId);
+    } catch (e,s) {
+      pp('$mm 👽👽Error downloading file: 👽$e 👽$s');
       rethrow;
     }
+  }
+  static Future<List<File>> getExamPageImages(ExamLink examLink) async {
+    return _getImageFiles(examLink);
+  }
+  static Future<List<File>> _getImageFiles(ExamLink examLink) async {
+    pp('$mm _getImageFiles ...');
+    List<File> files = [];
+    // Directory imageDir = Directory(imageDirPath);
+    var dir = await getApplicationDocumentsDirectory();
+
+    // if (!dir.existsSync()) {
+    //   return _downloadZipFile(url: examLink.pageImageZipUrl!, examLinkId: examLink.id!);
+    // }
+    downloadZipFileWeb(url: examLink.pageImageZipUrl!, examLinkId: examLink.id!);
+    var fileList = dir.listSync(recursive: true);
+    double totalSize = 0.0;
+    final filePath = '${dir.path}/examPage_${examLink.id!}';
+
+    fileList.sort((a, b) => a.path.compareTo(b.path));
+    for (var file in fileList) {
+      if (file is File) {
+        if (file.path.contains(filePath)) {
+          var size = await file.length() / 1024 / 1024;
+          totalSize += size;
+          pp('$mm File size: ${size.toStringAsFixed(2)} MB,'
+              ' path: ${file.path}');
+          files.add(file);
+        }
+      }
+    }
+
+    pp('$mm Total directory size: ${totalSize.toStringAsFixed(2)} MB');
+
+    return files;
+  }
+  Future<void> _openFile(ExamLink examLink) async {
+
+    var dir = await getApplicationDocumentsDirectory();
+
+    var res =  await launchUrl(Uri.parse(examLink.pageImageZipUrl!));
+    // if (res) {
+    //   launchUrl(url)
+    // }
+// #enddocregion file
   }
   static Future<File> downloadFile(String url, String fileName) async {
     pp('$mm .... downloading file .........................\n$url ');
@@ -56,23 +129,16 @@ class ImageFileUtil {
     }
   }
 
-  static Future<List<File>> unpackZipFile(File zipFile) async {
-    Directory destinationDirectory = Directory.systemTemp;
+  static const imageDirPath = 'examPageImages';
 
-    if (!zipFile.existsSync()) {
-      throw Exception('Zip file does not exist');
-    }
-
-    if (!destinationDirectory.existsSync()) {
-      destinationDirectory.createSync(recursive: true);
-    }
-
-    final archive = ZipDecoder().decodeBytes(zipFile.readAsBytesSync());
+  static Future<List<File>> _unpackZipFileWeb(Uint8List zipFile, int examLinkId) async {
+    final archive = ZipDecoder().decodeBytes(zipFile);
 
     final files = <File>[];
 
+    int index = 0;
     for (final file in archive) {
-      final filePath = '${destinationDirectory.path}/${file.name}';
+      final filePath = 'directory/examPage_${examLinkId}_$index.png';
       final outputFile = File(filePath);
 
       if (file.isFile) {
@@ -83,18 +149,63 @@ class ImageFileUtil {
         outputFile.createSync(recursive: true);
         files.add(outputFile);
       }
+      index++;
     }
     double total = 0.0;
     for (var value in files) {
-      var size = (await value.length()) / 1024;
+      var size = (await value.length()) / 1024 / 1024;
       total += size;
-      pp('$mm unpacked file: 💙💙 ${size.toStringAsFixed(2)} 💙💙 ${value.path}');
+      pp('$mm unpacked file: 💙💙 ${size.toStringAsFixed(2)}MB bytes 💙💙 ${value.path}');
     }
-    pp('$mm .... files unpacked: ${files.length} total size: ${total.toStringAsFixed(2)}K');
-
+    pp('$mm .... files unpacked: ${files.length} '
+        'total size: ${total.toStringAsFixed(2)}MB');
     return files;
   }
 
+    static Future<List<File>> _unpackZipFile(File zipFile, int examLinkId) async {
+    Directory tempDir = Directory.systemTemp;
+    Directory imageDir = Directory(imageDirPath);
+    if (!zipFile.existsSync()) {
+      throw Exception('Zip file does not exist');
+    }
+
+    if (!tempDir.existsSync()) {
+      tempDir.createSync(recursive: true);
+    }
+    if (!imageDir.existsSync()) {
+      imageDir.createSync(recursive: true);
+    }
+
+    final archive = ZipDecoder().decodeBytes(zipFile.readAsBytesSync());
+
+    final files = <File>[];
+
+    int index = 0;
+    for (final file in archive) {
+      final filePath = '${imageDir.path}/examPage_${examLinkId}_$index.png';
+      final outputFile = File(filePath);
+
+      if (file.isFile) {
+        outputFile.createSync(recursive: true);
+        outputFile.writeAsBytesSync(file.content as List<int>);
+        files.add(outputFile);
+      } else {
+        outputFile.createSync(recursive: true);
+        files.add(outputFile);
+      }
+      index++;
+    }
+    double total = 0.0;
+    for (var value in files) {
+      var size = (await value.length()) / 1024 / 1024;
+      total += size;
+      pp('$mm unpacked file: 💙💙 ${size.toStringAsFixed(2)}MB bytes 💙💙 ${value.path}');
+    }
+    pp('$mm .... files unpacked: ${files.length} '
+        'total size: ${total.toStringAsFixed(2)}MB');
+
+    return files;
+  }
 
   static Future<List<File>> convertPageContentFiles(
       ExamLink examLink, List<ExamPageContent> pageContents) async {
@@ -111,12 +222,10 @@ class ImageFileUtil {
         realFiles.add(x);
       } else {
         if (img.pageImageUrl != null) {
-          downloadZipFile(img.pageImageUrl!);
-          var mFile = await ImageFileUtil.createImageFileFromBytes(
-              img.uBytes!);
+          downloadZipFileWeb(url: img.pageImageUrl!, examLinkId: examLink.id!);
+          var mFile = await ImageFileUtil.createImageFileFromBytes(img.uBytes!);
           realFiles.add(mFile);
         }
-
       }
       index++;
     }
@@ -162,8 +271,7 @@ class ImageFileUtil {
     }
   }
 
-  static Future<File> createImageFileFromBytes(
-      List<int> bytes) async {
+  static Future<File> createImageFileFromBytes(List<int> bytes) async {
     final appDir = await getApplicationSupportDirectory();
     var filePath = 'f${DateTime.now().millisecondsSinceEpoch}.png';
     final file = File('${appDir.path}/$filePath');
@@ -255,5 +363,21 @@ class ImageFileUtil {
     var file = File(filePath!);
     pp('$mm Compressed file size: ${await file.length()}');
     return file;
+  }
+
+  static Future<File> downloadFileFromFirebase(
+      String url, String examLinkId) async {
+    try {
+      FirebaseStorage storage = FirebaseStorage.instance;
+      Reference ref = storage.refFromURL(Uri.parse(url).toString());
+      Directory tempDir = Directory.systemTemp;
+      var mFile = File('${tempDir.path}/$examLinkId.png');
+      await ref.writeToFile(mFile);
+      print('File downloaded successfully!');
+      return mFile;
+    } catch (e) {
+      print('Error downloading file: $e');
+      rethrow;
+    }
   }
 }

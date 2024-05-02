@@ -8,23 +8,23 @@ part of 'assistant_question.dart';
 
 AssistantQuestion _$AssistantQuestionFromJson(Map<String, dynamic> json) =>
     AssistantQuestion(
-      json['fileName'] as String?,
-      json['sectionName'] as String?,
-      json['subSectionName'] as String?,
-      json['questionNumber'] as String?,
-      json['subQuestionNumber'] as String?,
-      json['questionText'] as String?,
-      (json['subQuestionText'] as List<dynamic>?)
+      fileName: json['fileName'] as String?,
+      sectionName: json['sectionName'] as String?,
+      subSectionName: json['subSectionName'] as String?,
+      questionNumber: json['questionNumber'] as String?,
+      subQuestionNumber: json['subQuestionNumber'] as String?,
+      questionText: json['questionText'] as String?,
+      subQuestionText: (json['subQuestionText'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
-      json['index'] as int?,
-      json['examLinkId'] as int?,
-      json['subjectId'] as int?,
-      json['assistantId'] as String?,
-      json['date'] as String?,
-      json['assistantName'] as String?,
-      json['examLinkTitle'] as String?,
-      json['subject'] as String?,
+      index: json['index'] as int?,
+      examLinkId: json['examLinkId'] as int?,
+      subjectId: json['subjectId'] as int?,
+      assistantId: json['assistantId'] as String?,
+      date: json['date'] as String?,
+      assistantName: json['assistantName'] as String?,
+      examLinkTitle: json['examLinkTitle'] as String?,
+      subject: json['subject'] as String?,
     );
 
 Map<String, dynamic> _$AssistantQuestionToJson(AssistantQuestion instance) =>

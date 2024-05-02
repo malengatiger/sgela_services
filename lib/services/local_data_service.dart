@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:universal_io/io.dart';
 
 import '../data/exam_link.dart';
 import '../data/exam_page_content.dart';
@@ -14,14 +15,19 @@ class LocalDataService {
   late Database db;
 
   Future init() async {
-    pp('$mm initialize sqlite ...');
-
-    db = await openDatabase(
-      join(await getDatabasesPath(), 'skunk047db'),
-      version: 1,
-    );
-    pp('$mm SQLite Database is open: ${db.isOpen} 🔵🔵 ${db.path}');
-    await _createTables();
+    try {
+      if (Platform.isAndroid || Platform.isIOS) {
+            pp('$mm initialize sqlite ...');
+            db = await openDatabase(
+              join(await getDatabasesPath(), 'skunk047db'),
+              version: 1,
+            );
+            pp('$mm SQLite Database is open: ${db.isOpen} 🔵🔵 ${db.path}');
+            await _createTables();
+          }
+    } catch (e) {
+      pp('$mm ERROR: $e 🔴🔴🔴🔴');
+    }
   }
 
   Future<void> _createTables() async {

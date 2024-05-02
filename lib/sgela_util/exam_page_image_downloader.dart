@@ -1,15 +1,47 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 
 import 'package:flutter_download_manager/flutter_download_manager.dart';
+import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:sgela_services/data/exam_page_content.dart';
+import 'package:sgela_services/sgela_util/environment.dart';
+import 'package:sgela_services/sgela_util/http_utility.dart';
 
 import 'functions.dart';
 import 'image_file_util.dart';
 
-class ExamPageImageDownloader {
-  static const mm = ' 🥦🥦🥦ExamPageImageDownloader 🥦 ';
+class ExamPageDownloader {
+  static const mm = ' 🥦🥦🥦ExamPageDownloader 🥦 ';
+
+  static Future<List<ExamPageContent>> extractPageContentForExam(
+      int examLinkId) async {
+    List<ExamPageContent> list = [];
+    pp('$mm ... extractPageContentForExam: , examLinkId: $examLinkId ... ');
+
+    try {
+      var url = '${ChatbotEnvironment.getSkunkUrl()}'
+          'examPageContents/extractPageContentForExam?examLinkId=$examLinkId';
+      http.Response response = await HttpUtility.get(url: url, headers: {
+        'Content-Type': 'application/json'
+      });
+      if (response.statusCode == 200) {
+        List mList = jsonDecode(response.body);
+        for (var epc in mList) {
+          list.add(ExamPageContent.fromJson(epc));
+        }
+      }
+    } catch (e, s) {
+      var msg = 'Exam page contents failed to download\n$e';
+      pp('$mm $msg - $s');
+      throw Exception(msg);
+    }
+    pp('$mm ExamPageContents sourced from Skunk backend - ${list.length}');
+
+    return list;
+  }
 
   static Future<List<File>> downloadFiles(List<String> urls) async {
     List<File> files = [];
@@ -59,10 +91,12 @@ class ExamPageImageDownloader {
 
   static Stream<List<File>> get fileStream => _streamController.stream;
 
-  static Future<List<File>> downloadFilesWithIsolates(List<String> urls, List<String> fileNames) async {
+  static Future<List<File>> downloadFilesWithIsolates(
+      List<String> urls, List<String> fileNames) async {
     int cnt = 0;
     for (var url in urls) {
-      var file = await Isolate.run(() => _getFile(url: url, fileName: fileNames.elementAt(cnt)),
+      var file = await Isolate.run(
+          () => _getFile(url: url, fileName: fileNames.elementAt(cnt)),
           debugName: 'ISOLATE#$cnt');
       files.add(file);
       cnt++;

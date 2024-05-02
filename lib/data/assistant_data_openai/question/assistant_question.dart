@@ -17,22 +17,22 @@ class AssistantQuestion {
   String? assistantName, examLinkTitle, subject;
 
 
-  AssistantQuestion(
+  AssistantQuestion({
       this.fileName,
-      this.sectionName,
-      this.subSectionName,
-      this.questionNumber,
-      this.subQuestionNumber,
-      this.questionText,
-      this.subQuestionText,
-      this.index,
-      this.examLinkId,
-      this.subjectId,
-      this.assistantId,
-      this.date,
-      this.assistantName,
-      this.examLinkTitle,
-      this.subject);
+      required this.sectionName,
+      required this.subSectionName,
+      required this.questionNumber,
+      required this.subQuestionNumber,
+      required this.questionText,
+      required this.subQuestionText,
+      required this.index,
+      required this.examLinkId,
+      required this.subjectId,
+      required this.assistantId,
+      required this.date,
+      required this.assistantName,
+      required this.examLinkTitle,
+      required this.subject});
 
   factory AssistantQuestion.fromJson(Map<String, dynamic> json) =>
       _$AssistantQuestionFromJson(json);

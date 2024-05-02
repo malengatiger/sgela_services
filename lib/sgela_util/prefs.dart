@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../data/assistant_data_openai/model.dart';
 import '../data/branding.dart';
 import '../data/country.dart';
 import '../data/organization.dart';
@@ -192,20 +193,22 @@ class Prefs {
   }
 
   //
-  void saveCurrentModel(String model) async {
-    sharedPreferences.setString('aiModel', model);
+  void saveCurrentModel(Model model) async {
+    var s = jsonEncode(model);
+    sharedPreferences.setString('aiModel', s);
 
-    pp('$mm ... current model cached: $model');
+    pp('$mm ... current model cached: $s');
     return null;
   }
 
-  String getCurrentModel() {
+  Model? getCurrentModel() {
     var model = sharedPreferences.getString('aiModel');
     if (model == null) {
-      return modelGeminiAI;
+      return null;
     }
-    pp('$mm ... model: $model');
-    return model;
+    var json = jsonDecode(model);
+    pp('$mm ... model retrieved: $json');
+    return Model.fromJson(json);
   }
 
   saveCountries(List<Country> countries) {

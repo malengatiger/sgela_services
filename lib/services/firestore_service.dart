@@ -26,7 +26,7 @@ import '../sgela_util/image_file_util.dart';
 import '../sgela_util/location_util.dart';
 import '../sgela_util/prefs.dart';
 import 'local_data_service.dart';
-
+import 'package:flutter/foundation.dart';
 class FirestoreService {
   final Prefs prefs;
   final ColorWatcher colorWatcher;
@@ -38,6 +38,28 @@ class FirestoreService {
   FirestoreService(this.prefs, this.colorWatcher, this.firebaseFirestore,
       this.localDataService) {
     // init();
+  }
+
+  Future<List<ExamLink>> getExamLinksBySubjectTitle(String subjectTitle) async {
+    // Get a reference to the Firestore collection
+    CollectionReference examLinksRef =
+        FirebaseFirestore.instance.collection('ExamLink');
+
+    // Create a query to get all documents where the subject.title field contains the specified string
+    QuerySnapshot querySnapshot = await examLinksRef
+        .where('subject.title', isGreaterThanOrEqualTo: subjectTitle)
+        .where('subject.title', isLessThanOrEqualTo: '$subjectTitle\uf8ff')
+        // .orderBy('documentTitle', descending: false)
+        .get();
+
+    // Convert the query snapshot into a list of ExamLink objects
+    List<ExamLink> examLinks = querySnapshot.docs
+        .map((doc) => ExamLink.fromJson(doc.data() as Map<String, dynamic>))
+        .toList();
+    examLinks.sort((a, b) => a.documentTitle!.compareTo(b.documentTitle!));
+
+    // Return the list of ExamLink objects
+    return examLinks;
   }
 
   Future<List<ExamDocument>> getExamDocuments() async {
@@ -91,11 +113,17 @@ class FirestoreService {
   }
 
   Future<List<ExamPageContent>> getExamPageContents(int examLinkId) async {
-    List<ExamPageContent> examPageContents =
+
+    List<ExamPageContent> examPageContents = [];
+    if (kIsWeb) {
+      pp('$mm we are on web ... examLinkId: $examLinkId');
+    } else {
+    examPageContents =
         await localDataService.getExamPageContents(examLinkId);
     if (examPageContents.isNotEmpty) {
       examPageContents.sort((a, b) => a.pageIndex!.compareTo(b.pageIndex!));
       return examPageContents;
+    }
     }
     var start = DateTime.now();
     var querySnapshot = await firebaseFirestore
@@ -107,19 +135,61 @@ class FirestoreService {
       var content = ExamPageContent.fromJson(snapshot.data());
       examPageContents.add(content);
     }
-    pp('$mm ... examPageContents: ${examPageContents.length} ... '
-        'will download the page images ......... ');
-    for (var value in examPageContents) {
-      if (value.pageImageUrl != null) {
-        File file = await ImageFileUtil.downloadFile(
-            value.pageImageUrl!, 'file${value.pageIndex!}.png');
-        value.uBytes = file.readAsBytesSync();
-      }
-      await localDataService.addExamPageContent(value);
-    }
+    // pp('$mm ... examPageContents found on Firestore: 🍎${examPageContents.length} ... '
+    //     'will download the page images ......... ');
+    // for (var value in examPageContents) {
+    //   if (value.pageImageUrl != null) {
+    //     try {
+    //       File file = await ImageFileUtil.downloadFileFromFirebase(
+    //                   value.pageImageUrl!, 'file${value.pageIndex!}');
+    //       value.uBytes = file.readAsBytesSync();
+    //       pp('$mm 🍎🍎downloaded file: ${file.path} size: ${await file.length()} bytes🍎🍎');
+    //
+    //     } catch (e,s) {
+    //       pp('$mm 🍎🍎error downloading file: $e $s 🍎🍎');
+    //     }
+    //   }
+    //   if (!kIsWeb) {
+    //    await localDataService.addExamPageContent(value);
+    //   }
+    // }
 
     var end = DateTime.now();
     pp('$mm Files downloaded: elapsed time: ${end.difference(start).inSeconds} seconds');
+    examPageContents.sort((a, b) => a.pageIndex!.compareTo(b.pageIndex!));
+    return examPageContents;
+  }
+
+  Future<List<ExamPageContent>> getMathExamPageContents(int examLinkId) async {
+
+    List<ExamPageContent> examPageContents = [];
+    if (kIsWeb) {
+      pp('$mm we are on web ... examLinkId: $examLinkId');
+    } else {
+      examPageContents =
+      await localDataService.getExamPageContents(examLinkId);
+      if (examPageContents.isNotEmpty) {
+        examPageContents.sort((a, b) => a.pageIndex!.compareTo(b.pageIndex!));
+        return examPageContents;
+      }
+    }
+    var start = DateTime.now();
+    var querySnapshot = await firebaseFirestore
+        .collection('MathExamPageContent')
+        .where('examLinkId', isEqualTo: examLinkId)
+        .get();
+
+    for (var snapshot in querySnapshot.docs) {
+      var content = ExamPageContent.fromJson(snapshot.data());
+      examPageContents.add(content);
+    }
+    pp('$mm ... mathExamPageContents found on Firestore: 🍎${examPageContents.length} ... ');
+    // for (var value in examPageContents) {
+    //   pp('$mm ... exam page: 🔵${value.toJson()} 🔵');
+    // }
+
+    var end = DateTime.now();
+    pp('$mm pages found: elapsed time: ${end.difference(start).inSeconds} seconds');
     examPageContents.sort((a, b) => a.pageIndex!.compareTo(b.pageIndex!));
     return examPageContents;
   }

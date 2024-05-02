@@ -6,18 +6,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mistral_sgela_ai/mistral_sgela_ai.dart';
+import 'package:sgela_services/services/gemini_service.dart';
 import 'package:sgela_services/services/in_app_purchase_service.dart';
 import 'package:sgela_services/services/mistral_client_service.dart';
 import 'package:sgela_services/services/openai_assistant_service.dart';
 import 'package:sgela_services/services/rapyd_payment_service.dart';
 import 'package:sgela_services/services/repository.dart';
+import 'package:sgela_services/sgela_util/exam_page_listener.dart';
 import 'package:sgela_services/sgela_util/prefs.dart';
 import 'package:sgela_services/sgela_util/registration_stream_handler.dart';
 import 'package:sgela_services/sgela_util/sponsor_prefs.dart';
 import 'package:sgela_services/sgela_util/widget_prefs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../embeddings/langchain_service_impl.dart';
 import '../repositories/basic_repository.dart';
 import '../services/accounting_service.dart';
 import '../services/agriculture_service.dart';
@@ -46,6 +47,7 @@ Future<void> registerServices(
   const mm = '🍎🍎🍎🍎🍎🍎RegisterServices';
   pp('$mm registerServices: initialize service singletons with GetIt .... 🍎🍎🍎');
 
+
   var lds = LocalDataService();
   await lds.init();
   Dio dio = Dio();
@@ -54,7 +56,7 @@ Future<void> registerServices(
   var prefs = Prefs(await SharedPreferences.getInstance());
   var sponsorPrefs = SponsorPrefs(await SharedPreferences.getInstance());
   var mPrefs = await SharedPreferences.getInstance();
-  ;
+
   var rapyd = RapydPaymentService(dioUtil, sponsorPrefs);
 
   var dlc = DarkLightControl(prefs);
@@ -62,17 +64,28 @@ Future<void> registerServices(
 
   var mistralService = MistralService(ChatbotEnvironment.getMistralAPIKey());
 
-  var langChainService = LangChainServiceImpl(dioUtil);
-  langChainService.init();
+  // var langChainService = LangChainServiceImpl(dioUtil);
+  // langChainService.init();
 
   GetIt.instance.registerLazySingleton<OpenAIAssistantService>(
           () => OpenAIAssistantService(dioUtil));
 
-  GetIt.instance.registerLazySingleton<LangChainServiceImpl>(
-          () => langChainService);
+  // GetIt.instance.registerLazySingleton<LangChainServiceImpl>(
+  //         () => langChainService);
+
+  GetIt.instance.registerLazySingleton<ExamPageListener>(
+          () => ExamPageListener());
+  GetIt.instance.registerLazySingleton<ExamLinkListener>(
+          () => ExamLinkListener());
+  GetIt.instance.registerLazySingleton<SubjectListener>(
+          () => SubjectListener());
+
+  GetIt.instance.registerLazySingleton<GeminiService>(
+          () => GeminiService());
 
   GetIt.instance.registerLazySingleton<GroqService>(
           () => GroqService(dioUtil));
+
 
   GetIt.instance.registerLazySingleton<MistralServiceClient>(
       () => MistralServiceClient(mistralService));

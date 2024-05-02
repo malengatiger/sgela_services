@@ -9,11 +9,11 @@ class ExamQuestion {
   final String? subSection;
   final List<Question>? questions;
 
-  const ExamQuestion({
-    this.fileName,
-    this.section,
-    this.subSection,
-    this.questions,
+   ExamQuestion({
+    required this.fileName,
+    required this.section,
+    required this.subSection,
+    required this.questions,
   });
 
   factory ExamQuestion.fromJson(Map<String, dynamic> json) =>
@@ -28,8 +28,8 @@ class Question {
   final String? questionText;
 
   const Question({
-    this.questionNumber,
-    this.questionText,
+    required this.questionNumber,
+    required this.questionText,
   });
 
   factory Question.fromJson(Map<String, dynamic> json) =>

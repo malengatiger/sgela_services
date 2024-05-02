@@ -6,10 +6,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart' as dot;
 class ChatbotEnvironment {
   //💙Skunk backend -
 
-  static const _ipNormal = '192.168.86.242';
-  static const _ipFibreDown = '192.168.86.230';
-  static const bool isFibreDown = false;
-  static const _devSkunkUrl = 'http://${isFibreDown? _ipFibreDown: _ipNormal}:8080/skunk-service/';
+  static const _ipFibreDown  = '192.168.86.242';
+  static const  _ipNormal = '192.168.86.230';
+  static const bool isFibreOK = true;
+  static const _devSkunkUrl = 'http://${isFibreOK? _ipNormal: _ipFibreDown}:8080/skunk-service/';
   static const _prodSkunkUrl = 'https://skunkworks-backend-service-knzs6eczwq-nw.a.run.app/';
 
   //TODO - refresh url links after Skunk deployment
@@ -36,7 +36,7 @@ class ChatbotEnvironment {
   }
 
   //💙Chatbot Backend
-  static const _devGeminiUrl = 'http://${isFibreDown? _ipFibreDown: _ipNormal}:3010/';
+  static const _devGeminiUrl = 'http://${isFibreOK? _ipFibreDown: _ipNormal}:3010/';
   static const _prodGeminiUrl = 'https://sgela-ai-knzs6eczwq-nw.a.run.app/';
 
   static const _devFirebaseName = 'sgela-ai-33';

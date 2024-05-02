@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-
+import 'dart:io';
+import 'package:archive/archive.dart';
+import '../data/exam_link.dart';
 import 'functions.dart';
 
 class HttpUtility {
@@ -53,4 +55,40 @@ class HttpUtility {
       rethrow;
     }
   }
-}
+
+
+
+  static Future<List<String>> downloadAndUnpackZip(ExamLink link) async {
+    try {
+      Directory dir = Directory('examPages');
+      var response = await http.get(Uri.parse(link.pageImageZipUrl!));
+      if (response.statusCode == 200) {
+        var file = File('${dir.path}/${link.id!}.png');
+        await file.writeAsBytes(response.bodyBytes);
+        pp('zipped File downloaded successfully! ${await file.length()} bytes');
+
+        var archive = ZipDecoder().decodeBytes(file.readAsBytesSync());
+        List<String> extractedFilePaths = [];
+
+        int index = 0;
+        for (var file in archive) {
+          var extractedPath = '${dir.path}/examPage${link.id}_$index.png';
+          if (file.isFile) {
+            var extractedFile = File(extractedPath);
+            extractedFile.createSync(recursive: true);
+            extractedFile.writeAsBytesSync(file.content as List<int>);
+            extractedFilePaths.add(extractedPath);
+          } else {
+            Directory(extractedPath).create(recursive: true);
+          }
+        }
+        print('File unpacked successfully!');
+        return extractedFilePaths;
+      } else {
+        print('Error downloading file. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error downloading and unpacking file: $e');
+    }
+    return [];
+  }}
