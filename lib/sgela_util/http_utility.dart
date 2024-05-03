@@ -17,7 +17,7 @@ class HttpUtility {
 
       final response = await http
           .get(Uri.parse(url), headers: headers)
-          .timeout(Duration(seconds: 60));
+          .timeout(Duration(minutes: 5));
       return response;
     } catch (e, stackTrace) {
       pp('$mm Error occurred during GET request: $e');

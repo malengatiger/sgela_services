@@ -7,11 +7,11 @@ import '../data/subject.dart';
 
 class ExamPageListener {
 
-  final StreamController<ExamPageContent> _examController = StreamController.broadcast();
-  Stream<ExamPageContent> get examPageStream =>  _examController.stream;
+  final StreamController<List<ExamPageContent>> _examController = StreamController.broadcast();
+  Stream<List<ExamPageContent>> get examPageStream =>  _examController.stream;
 
-  void setExamPage(ExamPageContent examPageContent) {
-    _examController.sink.add(examPageContent);
+  void setExamPage(List<ExamPageContent> examPageContents) {
+    _examController.sink.add(examPageContents);
   }
 }
 

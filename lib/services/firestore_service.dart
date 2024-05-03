@@ -116,7 +116,7 @@ class FirestoreService {
 
     List<ExamPageContent> examPageContents = [];
     if (kIsWeb) {
-      pp('$mm we are on web ... examLinkId: $examLinkId');
+      pp('$mm we are on the web ... examLinkId: $examLinkId');
     } else {
     examPageContents =
         await localDataService.getExamPageContents(examLinkId);
@@ -135,27 +135,10 @@ class FirestoreService {
       var content = ExamPageContent.fromJson(snapshot.data());
       examPageContents.add(content);
     }
-    // pp('$mm ... examPageContents found on Firestore: 🍎${examPageContents.length} ... '
-    //     'will download the page images ......... ');
-    // for (var value in examPageContents) {
-    //   if (value.pageImageUrl != null) {
-    //     try {
-    //       File file = await ImageFileUtil.downloadFileFromFirebase(
-    //                   value.pageImageUrl!, 'file${value.pageIndex!}');
-    //       value.uBytes = file.readAsBytesSync();
-    //       pp('$mm 🍎🍎downloaded file: ${file.path} size: ${await file.length()} bytes🍎🍎');
-    //
-    //     } catch (e,s) {
-    //       pp('$mm 🍎🍎error downloading file: $e $s 🍎🍎');
-    //     }
-    //   }
-    //   if (!kIsWeb) {
-    //    await localDataService.addExamPageContent(value);
-    //   }
-    // }
 
     var end = DateTime.now();
-    pp('$mm Files downloaded: elapsed time: ${end.difference(start).inSeconds} seconds');
+    pp('$mm ${examPageContents.length} ExamPageContents downloaded: elapsed time: '
+        '${end.difference(start).inMilliseconds} milliseconds');
     examPageContents.sort((a, b) => a.pageIndex!.compareTo(b.pageIndex!));
     return examPageContents;
   }

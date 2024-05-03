@@ -19,7 +19,7 @@ class ExamPageDownloader {
   static Future<List<ExamPageContent>> extractPageContentForExam(
       int examLinkId) async {
     List<ExamPageContent> list = [];
-    pp('$mm ... extractPageContentForExam: , examLinkId: $examLinkId ... ');
+    pp('$mm .................. extractPageContentForExam: , examLinkId: $examLinkId ... ');
 
     try {
       var url = '${ChatbotEnvironment.getSkunkUrl()}'
@@ -38,7 +38,7 @@ class ExamPageDownloader {
       pp('$mm $msg - $s');
       throw Exception(msg);
     }
-    pp('$mm ExamPageContents sourced from Skunk backend - ${list.length}');
+    pp('$mm ......... ExamPageContents sourced from Skunk backend - ${list.length}');
 
     return list;
   }

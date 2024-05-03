@@ -48,45 +48,49 @@ class GeminiService {
   }
 
   Future<GenerateContentResponse> sendExamPageContent(
-      ExamPageContent examPageContent, String prompt) async {
+      List<ExamPageContent> examPageContents, String prompt) async {
     final key = dotenv.env['GEMINI_API_KEY'];
     if (key == null) {
       var msg = 'Gemini API Key not found';
       pp('$mm $msg');
       throw Exception(msg);
     }
+    pp('$mm sendExamPageContent ... pages: ${examPageContents.length} \nPROMPT: $prompt');
     final model = GenerativeModel(
         model: 'gemini-pro-vision',
-        apiKey: key!,
+        apiKey: key,
         generationConfig: GenerationConfig(temperature: 0));
 
-    Uint8List? m;
+    List<Uint8List> imageList = [];
     try {
-      m = await _handleImage(examPageContent, m, prompt);
+      for (var exam in examPageContents) {
+        var m = await _handleImage(exam);
+        if (m != null) {
+          imageList.add(m);
+        }
+      }
     } catch (e, s) {
       pp('$mm $e $s');
     }
-    if (m == null) {
+    if (imageList.isEmpty) {
       throw Exception('Unable to get image bytes');
     }
+    List<Content> contents = [];
+    var sys = Content.system(instruct);
+    contents.add(sys);
+    contents.add(Content.text(prompt));
+    for (var img in imageList) {
+      contents.add( Content('user', [DataPart('image/png', img)]),);
+    }
 
-    final content = [
-      Content.system('You are a Mathematics Tutor and Assistant.'
-          'You will receive an image from an exam paper.'
-          'You extract and solve the math problems contained in the image. '
-          'Your users are grade school, medium school, high school students and first and second year college students. '
-          'You keep your solutions at grade and high school level and college level. '
-          'You think step by step.  '
-          'You explain each step of the solution.'
-          'You return all responses in LaTex format.'),
-      Content.data('image/png', m),
-      Content.text(prompt),
-    ];
-    final imageParts = [
-      DataPart('image/png', m),
-    ];
-    final content2 = Content.multi([TextPart(prompt), ...imageParts]);
-    final tokenCount = await model.countTokens(content);
+    List<Part> imageParts = [];
+    for (var img in imageList) {
+      imageParts.add(DataPart('image/png', img));
+    }
+
+    var extendedPrompt = '$instruct $prompt';
+    final content2 = Content.multi([TextPart(extendedPrompt), ...imageParts]);
+    final tokenCount = await model.countTokens(contents);
     pp('$mm Token count for this query: 🔴${tokenCount.totalTokens}');
 
     final response = await model.generateContent([content2],
@@ -97,12 +101,21 @@ class GeminiService {
     return response;
   }
 
-  Future<Uint8List?> _handleImage(
-      ExamPageContent examPageContent, Uint8List? m, String prompt) async {
+  static const instruct = 'You are a Tutor and Assistant. '
+      'You will receive images from an exam paper. '
+      'You extract all the questions contained in the images. '
+      'You answer each question. '
+      'Your users are grade school, medium school, high school students and first and second year college students. '
+      'You keep your solutions at grade and high school level and college level. '
+      'You think step by step.  '
+      'You explain each step of the solution.'
+      'You return all responses in LaTex format.';
+  Future<Uint8List?> _handleImage(ExamPageContent examPageContent) async {
+    Uint8List? m;
     if (examPageContent.uBytes == null || examPageContent.uBytes!.isEmpty) {
       if (examPageContent.pageImageUrl != null) {
         m = await downloadPng(examPageContent.pageImageUrl!);
-        pp('$mm Prompt: $prompt\n$mm Image File bytes: ${m.length}');
+        pp('$mm Prompt: Image File bytes: ${m.length}');
         List<int> list = m.toList();
         examPageContent.uBytes = list;
       }
@@ -112,12 +125,13 @@ class GeminiService {
     return m;
   }
 
-  static const instructions = 'You are a Mathematics Tutor and Assistant.'
+  static const instructions = 'You are a High School Tutor and Assistant.'
       'You will receive an image from an exam paper.'
-      'You extract and solve the math problems contained in the image. '
+      'You extract and solve all the questions problems contained in the image. '
       'Your users are grade school, medium school, high school students and first and second year college students. '
       'You keep your solutions at grade and high school level and college level. '
       'You think step by step.  '
       'You explain each step of the solution.'
-      'You return all responses in LaTex format.';
+      'If your response contains equations, return your response in LaTex format.'
+      ' Otherwise, return responses in markdown format. Use headings and paragraphs to improve readability.';
 }
