@@ -76,7 +76,7 @@ class GeminiChatService {
         var message = 'Things went south';
         geminiResponse = MyGeminiResponse([], null, 0, false, message);
       }
-    } catch (e,s) {
+    } catch (e) {
       pp('$mm ERROR: $e - $e');
       throw Exception('$mm 👿👿👿👿Error sending SgelaAI request 👿👿👿👿');
     }

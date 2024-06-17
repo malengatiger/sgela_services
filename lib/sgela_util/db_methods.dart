@@ -53,9 +53,9 @@ class DBMethods {
       FirestoreService firestoreService = GetIt.instance<FirestoreService>();
 
        tokensUsed = TokensUsed(organizationId: sponsoree.organizationId!,
-          sponsoreeId: sponsoree!.id!,
+          sponsoreeId: sponsoree.id!,
           date: DateTime.now().toUtc().toIso8601String(),
-          sponsoreeName: sponsoree!.sgelaUserName,
+          sponsoreeName: sponsoree.sgelaUserName,
           organizationName: sponsoree.organizationName,
           model: model,
           totalTokens: totalTokens, promptTokens: 0, completionTokens: 0);

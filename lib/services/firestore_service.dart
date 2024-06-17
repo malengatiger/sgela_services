@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoding/geocoding.dart';
@@ -22,7 +21,6 @@ import '../data/subject.dart';
 import '../data/tokens_used.dart';
 import '../sgela_util/dark_light_control.dart';
 import '../sgela_util/functions.dart';
-import '../sgela_util/image_file_util.dart';
 import '../sgela_util/location_util.dart';
 import '../sgela_util/prefs.dart';
 import 'local_data_service.dart';

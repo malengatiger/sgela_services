@@ -1,11 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:sgela_services/data/org_user.dart';
 import 'package:sgela_services/data/organization.dart';
 import 'package:sgela_services/data/sponsoree.dart';
 
 import '../data/sgela_user.dart';
-import '../sgela_util/environment.dart';
 import '../sgela_util/functions.dart';
 import '../sgela_util/prefs.dart';
 import 'firestore_service.dart';

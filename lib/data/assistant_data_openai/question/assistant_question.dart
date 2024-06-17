@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:sgela_services/data/exam_link.dart';
 
 part 'assistant_question.g.dart';
 

@@ -1,7 +1,6 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-import 'organization.dart';
 part 'sponsor_product.g.dart';
 @JsonSerializable()
 

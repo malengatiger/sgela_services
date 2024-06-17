@@ -1,8 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart' as dot;
 
 import 'functions.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart' as dot;
 class ChatbotEnvironment {
   //💙Skunk backend -
 
@@ -72,9 +70,9 @@ class ChatbotEnvironment {
   static int maxResults = 48;
 
   static bool isDotLoaded = false;
-//OPEN_API_KEY
-  static String part1 = 'SyAUXc8lM1wPsR-Rrow0XLms3i';
-  static String part2 = 'Tbok7FjDA';
+//Gemini AIza
+  static String part1 = 'SyCRDf9ZOq3GH4UjWehGbTMTN';
+  static String part2 = 'tDIplqsZqQ';
   static String part0 = 'AIza';
   //sk-A2o
   static String cpart1 = 'DpuYigpfuFaiCWmeAT3Blbk';

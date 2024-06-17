@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -14,7 +13,6 @@ import '../data/exam_link.dart';
 import '../data/exam_page_content.dart';
 import 'functions.dart';
 import 'dart:async';
-import 'dart:html' as html;
 import 'package:flutter/foundation.dart';
 class ImageFileUtil {
   static const mm = '🌿🌿🌿 ImageFileUtil 😎😎';
@@ -29,10 +27,10 @@ class ImageFileUtil {
       var bytes = response.bodyBytes;
       // var file = File('file.zip');
       // await file.writeAsBytes(bytes);
-      // pp('$mm zip file created: ${await file.length()} - ${file.path}');
+      pp('$mm zip file created, bytes: ${bytes.length}');
       if (kIsWeb) {
         pp('$mm .... kIsWeb: downloadZipFileWeb');
-        html.window.localStorage['zip_$examLinkId.zip'] = String.fromCharCodes(bytes);
+        // html.window.localStorage['zip_$examLinkId.zip'] = String.fromCharCodes(bytes);
         var end = DateTime.now();
         pp('$mm zip file downloaded: '
             '${(bytes.length / 1024 / 1024).toStringAsFixed(2)}MB bytes; '

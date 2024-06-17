@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:claude_dart_flutter/claude_dart_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -39,7 +40,14 @@ import 'dark_light_control.dart';
 import 'dio_util.dart' as di;
 import 'environment.dart';
 import 'functions.dart';
+import 'package:flutter/foundation.dart';
+bool isRunningOnWeb() {
 
+  if (kIsWeb) {
+    return true;
+  }
+  return false;
+}
 Future<void> registerServices(
     {required FirebaseFirestore firebaseFirestore,
     required FirebaseAuth firebaseAuth,
@@ -72,7 +80,8 @@ Future<void> registerServices(
 
   // GetIt.instance.registerLazySingleton<LangChainServiceImpl>(
   //         () => langChainService);
-
+  GetIt.instance.registerLazySingleton<ClaudeService>(
+          () => ClaudeService(ChatbotEnvironment.getAnthropicApiKey()));
   GetIt.instance.registerLazySingleton<ExamPageListener>(
           () => ExamPageListener());
   GetIt.instance.registerLazySingleton<ExamLinkListener>(
@@ -156,6 +165,6 @@ Future<void> registerServices(
     }
     // mistralService.listModels(debug: true);
   } catch (e, s) {
-    pp('$mm ERROR: $e - $s');
+    pp('$mm ERROR, inAppPurchase not available on the Web: $e - $s');
   }
 }

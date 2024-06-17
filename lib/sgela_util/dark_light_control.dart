@@ -15,14 +15,14 @@ class DarkLightControl {
   final Prefs prefs;
 
   setDarkMode() async {
-    int colorIndex = await prefs.getColorIndex();
+    int colorIndex = prefs.getColorIndex();
     var mc = ModeAndColor(DARK, colorIndex);
     _streamController.sink.add(mc);
     prefs.saveMode(DARK);
   }
 
   setLightMode() async {
-    int colorIndex = await prefs.getColorIndex();
+    int colorIndex = prefs.getColorIndex();
     var mc = ModeAndColor(LIGHT, colorIndex);
     _streamController.sink.add(mc);
     prefs.saveMode(LIGHT);

@@ -46,7 +46,7 @@ class LocationUtil {
 
     HashMap<double, Country> hash = HashMap();
      for (var value in countries) {
-       double dist = Geolocator.distanceBetween(position.latitude, position.longitude!,
+       double dist = Geolocator.distanceBetween(position.latitude, position.longitude,
            value.latitude!, value.longitude!);
        hash[dist] = value;
      }
