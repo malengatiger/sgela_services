@@ -7,14 +7,14 @@ part of 'sgela_user.dart';
 // **************************************************************************
 
 SgelaUser _$SgelaUserFromJson(Map<String, dynamic> json) => SgelaUser(
-      id: json['id'] as int?,
+      id: (json['id'] as num?)?.toInt(),
       firstName: json['firstName'] as String?,
       lastName: json['lastName'] as String?,
       email: json['email'] as String?,
       cellphone: json['cellphone'] as String?,
       date: json['date'] as String?,
-      countryId: json['countryId'] as int?,
-      cityId: json['cityId'] as int?,
+      countryId: (json['countryId'] as num?)?.toInt(),
+      cityId: (json['cityId'] as num?)?.toInt(),
       countryName: json['countryName'] as String?,
       cityName: json['cityName'] as String?,
       firebaseUserId: json['firebaseUserId'] as String?,

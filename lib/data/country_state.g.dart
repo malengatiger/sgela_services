@@ -7,7 +7,7 @@ part of 'country_state.dart';
 // **************************************************************************
 
 CountryState _$CountryStateFromJson(Map<String, dynamic> json) => CountryState(
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
       json['country'] == null
           ? null
           : Country.fromJson(json['country'] as Map<String, dynamic>),

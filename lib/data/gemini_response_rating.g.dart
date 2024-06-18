@@ -8,22 +8,22 @@ part of 'gemini_response_rating.dart';
 
 AIResponseRating _$AIResponseRatingFromJson(Map<String, dynamic> json) =>
     AIResponseRating(
-      rating: json['rating'] as int?,
+      rating: (json['rating'] as num?)?.toInt(),
       date: json['date'] as String?,
-      id: json['id'] as int?,
-      subjectId: json['subjectId'] as int?,
-      organizationId: json['organizationId'] as int?,
-      numberOfPagesInQuery: json['numberOfPagesInQuery'] as int?,
-      sponsoreeId: json['sponsoreeId'] as int?,
-      userId: json['userId'] as int?,
+      id: (json['id'] as num?)?.toInt(),
+      subjectId: (json['subjectId'] as num?)?.toInt(),
+      organizationId: (json['organizationId'] as num?)?.toInt(),
+      numberOfPagesInQuery: (json['numberOfPagesInQuery'] as num?)?.toInt(),
+      sponsoreeId: (json['sponsoreeId'] as num?)?.toInt(),
+      userId: (json['userId'] as num?)?.toInt(),
       sponsoreeName: json['sponsoreeName'] as String?,
       sponsoreeEmail: json['sponsoreeEmail'] as String?,
       sponsoreeCellphone: json['sponsoreeCellphone'] as String?,
-      examLinkId: json['examLinkId'] as int?,
+      examLinkId: (json['examLinkId'] as num?)?.toInt(),
       examTitle: json['examTitle'] as String?,
       subject: json['subject'] as String?,
       aiModel: json['aiModel'] as String?,
-    )..tokensUsed = json['tokensUsed'] as int?;
+    )..tokensUsed = (json['tokensUsed'] as num?)?.toInt();
 
 Map<String, dynamic> _$AIResponseRatingToJson(AIResponseRating instance) =>
     <String, dynamic>{

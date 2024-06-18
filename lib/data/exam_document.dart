@@ -7,9 +7,10 @@ class ExamDocument {
   String? title;
   String? link;
   int? id;
+  int? year;
 
 
-  ExamDocument(this.title, this.link, this.id);
+  ExamDocument(this.title, this.link, this.id, this.year);
 
   factory ExamDocument.fromJson(Map<String, dynamic> json) =>
       _$ExamDocumentFromJson(json);

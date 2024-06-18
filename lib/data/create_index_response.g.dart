@@ -10,7 +10,7 @@ PineconeIndex _$PineconeIndexFromJson(Map<String, dynamic> json) =>
     PineconeIndex(
       json['name'] as String?,
       json['metric'] as String?,
-      json['dimension'] as int?,
+      (json['dimension'] as num?)?.toInt(),
       json['status'] == null
           ? null
           : Status.fromJson(json['status'] as Map<String, dynamic>),
@@ -18,8 +18,8 @@ PineconeIndex _$PineconeIndexFromJson(Map<String, dynamic> json) =>
       json['spec'] == null
           ? null
           : Spec.fromJson(json['spec'] as Map<String, dynamic>),
-      json['examLinkId'] as int?,
-      json['subjectId'] as int?,
+      (json['examLinkId'] as num?)?.toInt(),
+      (json['subjectId'] as num?)?.toInt(),
       json['examTitle'] as String?,
       json['subject'] as String?,
     );

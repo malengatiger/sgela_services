@@ -23,8 +23,8 @@ class DBMethods {
           sponsoreeName: sponsoree.sgelaUserName,
           sponsoreeEmail: sponsoree.sgelaEmail,
           sponsoreeCellphone: sponsoree.sgelaCellphone,
-          subjectId: examLink.subject?.id,
-          subject: examLink.subject?.title,
+          subjectId: examLink.subjectId,
+          subject: examLink.subject,
           id: DateTime.now().millisecondsSinceEpoch,
           rating: rating.toInt(),
           userId: sponsoree.sgelaUserId,
@@ -86,10 +86,10 @@ class DBMethods {
           sponsoreeCellphone: sponsoree.sgelaCellphone,
           sponsoreeEmail: sponsoree.sgelaEmail,
           sponsoreeName: sponsoree.sgelaUserName,
-          subjectId:examLink.subject?.id,
+          subjectId:examLink.subjectId,
           examTitle:
           '${examLink.documentTitle} - ${examLink.title}',
-          subject: examLink.subject?.title,
+          subject: examLink.subject,
           userId: sponsoree.sgelaUserId,
           sponsoreeId: sponsoree.id!);
 

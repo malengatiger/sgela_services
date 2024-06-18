@@ -15,7 +15,7 @@ MyGeminiResponse _$MyGeminiResponseFromJson(Map<String, dynamic> json) =>
           ? null
           : MyPromptFeedback.fromJson(
               json['promptFeedback'] as Map<String, dynamic>),
-      json['tokensUsed'] as int?,
+      (json['tokensUsed'] as num?)?.toInt(),
       json['responseIsOK'] as bool?,
       json['message'] as String?,
     );

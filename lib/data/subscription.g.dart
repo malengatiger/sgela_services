@@ -7,10 +7,10 @@ part of 'subscription.dart';
 // **************************************************************************
 
 Subscription _$SubscriptionFromJson(Map<String, dynamic> json) => Subscription(
-      json['id'] as int?,
-      json['countryId'] as int?,
-      json['organizationId'] as int?,
-      json['userId'] as int?,
+      (json['id'] as num?)?.toInt(),
+      (json['countryId'] as num?)?.toInt(),
+      (json['organizationId'] as num?)?.toInt(),
+      (json['userId'] as num?)?.toInt(),
       json['payfastToken'] as String?,
       json['date'] as String?,
       json['pricing'] == null

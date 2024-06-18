@@ -16,9 +16,9 @@ OpenAIQuestion _$OpenAIQuestionFromJson(Map<String, dynamic> json) =>
       subQuestionText: (json['subQuestionText'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
-      index: json['index'] as int?,
-      examLinkId: json['examLinkId'] as int?,
-      subjectId: json['subjectId'] as int?,
+      index: (json['index'] as num?)?.toInt(),
+      examLinkId: (json['examLinkId'] as num?)?.toInt(),
+      subjectId: (json['subjectId'] as num?)?.toInt(),
       date: json['date'] as String?,
       fileUrl: json['fileUrl'] as String?,
       examTitle: json['examTitle'] as String?,

@@ -7,17 +7,17 @@ part of 'branding.dart';
 // **************************************************************************
 
 Branding _$BrandingFromJson(Map<String, dynamic> json) => Branding(
-      organizationId: json['organizationId'] as int?,
-      id: json['id'] as int?,
+      organizationId: (json['organizationId'] as num?)?.toInt(),
+      id: (json['id'] as num?)?.toInt(),
       date: json['date'] as String?,
       logoUrl: json['logoUrl'] as String?,
       splashUrl: json['splashUrl'] as String?,
       tagLine: json['tagLine'] as String?,
       organizationName: json['organizationName'] as String?,
       organizationUrl: json['organizationUrl'] as String?,
-      splashTimeInSeconds: json['splashTimeInSeconds'] as int?,
-      colorIndex: json['colorIndex'] as int?,
-      boxFit: json['boxFit'] as int?,
+      splashTimeInSeconds: (json['splashTimeInSeconds'] as num?)?.toInt(),
+      colorIndex: (json['colorIndex'] as num?)?.toInt(),
+      boxFit: (json['boxFit'] as num?)?.toInt(),
       activeFlag: json['activeFlag'] as bool?,
     );
 

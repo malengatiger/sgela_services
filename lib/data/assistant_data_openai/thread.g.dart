@@ -9,7 +9,7 @@ part of 'thread.dart';
 Thread _$ThreadFromJson(Map<String, dynamic> json) => Thread(
       id: json['id'] as String?,
       object: json['object'] as String?,
-      createdAt: json['created_at'] as int?,
+      createdAt: (json['created_at'] as num?)?.toInt(),
       metadata: json['metadata'],
     );
 

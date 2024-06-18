@@ -60,7 +60,10 @@ class DioUtil {
       response = await dio.get(
         path,
         queryParameters: queryParameters,
-        options: Options(headers: headers, responseType: ResponseType.json),
+        options: Options(
+            sendTimeout: Duration(seconds: 60),
+            receiveTimeout: Duration(seconds: 300),
+            headers: headers, responseType: ResponseType.json),
       );
 
       pp('$mm Dio network response: 🥬🥬🥬🥬🥬🥬 status code: ${response.statusCode}');

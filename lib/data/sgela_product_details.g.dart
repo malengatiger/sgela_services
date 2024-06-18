@@ -8,14 +8,14 @@ part of 'sgela_product_details.dart';
 
 SgelaProductDetails _$SgelaProductDetailsFromJson(Map<String, dynamic> json) =>
     SgelaProductDetails(
-      id: json['id'] as int?,
+      id: (json['id'] as num?)?.toInt(),
       title: json['title'] as String?,
       description: json['description'] as String?,
       price: json['price'] as String?,
       rawPrice: (json['rawPrice'] as num?)?.toDouble(),
       currencyCode: json['currencyCode'] as String?,
       currencySymbol: json['currencySymbol'] as String?,
-      organizationId: json['organizationId'] as int?,
+      organizationId: (json['organizationId'] as num?)?.toInt(),
       organizationName: json['organizationName'] as String?,
       isOneTime: json['isOneTime'] as bool?,
       isAppleStore: json['isAppleStore'] as bool?,

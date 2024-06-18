@@ -4,6 +4,7 @@ import 'package:claude_dart_flutter/claude_dart_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mistral_sgela_ai/mistral_sgela_ai.dart';
@@ -27,6 +28,7 @@ import '../services/auth_service.dart';
 import '../services/busy_stream_service.dart';
 import '../services/chat_gpt_service.dart';
 import '../services/conversion_service.dart';
+import '../services/exam_extractor_service.dart';
 import '../services/firestore_service.dart';
 import '../services/firestore_service_sponsor.dart';
 import '../services/gemini_chat_service.dart';
@@ -40,21 +42,20 @@ import 'dark_light_control.dart';
 import 'dio_util.dart' as di;
 import 'environment.dart';
 import 'functions.dart';
-import 'package:flutter/foundation.dart';
-bool isRunningOnWeb() {
 
+bool isRunningOnWeb() {
   if (kIsWeb) {
     return true;
   }
   return false;
 }
+
 Future<void> registerServices(
     {required FirebaseFirestore firebaseFirestore,
     required FirebaseAuth firebaseAuth,
     Gemini? gemini}) async {
   const mm = '🍎🍎🍎🍎🍎🍎RegisterServices';
   pp('$mm registerServices: initialize service singletons with GetIt .... 🍎🍎🍎');
-
 
   var lds = LocalDataService();
   await lds.init();
@@ -72,29 +73,30 @@ Future<void> registerServices(
 
   var mistralService = MistralService(ChatbotEnvironment.getMistralAPIKey());
 
-  // var langChainService = LangChainServiceImpl(dioUtil);
-  // langChainService.init();
+  var firestoreService =
+      FirestoreService(prefs, cWatcher, FirebaseFirestore.instance, lds);
+  var authService = AuthService(firebaseAuth, prefs, firestoreService);
+
+  GetIt.instance.registerLazySingleton<ExamExtractorService>(
+      () => ExamExtractorService(dioUtil, authService));
 
   GetIt.instance.registerLazySingleton<OpenAIAssistantService>(
-          () => OpenAIAssistantService(dioUtil));
+      () => OpenAIAssistantService(dioUtil));
 
   // GetIt.instance.registerLazySingleton<LangChainServiceImpl>(
   //         () => langChainService);
   GetIt.instance.registerLazySingleton<ClaudeService>(
-          () => ClaudeService(ChatbotEnvironment.getAnthropicApiKey()));
-  GetIt.instance.registerLazySingleton<ExamPageListener>(
-          () => ExamPageListener());
-  GetIt.instance.registerLazySingleton<ExamLinkListener>(
-          () => ExamLinkListener());
-  GetIt.instance.registerLazySingleton<SubjectListener>(
-          () => SubjectListener());
+      () => ClaudeService(ChatbotEnvironment.getAnthropicApiKey()));
+  GetIt.instance
+      .registerLazySingleton<ExamPageListener>(() => ExamPageListener());
+  GetIt.instance
+      .registerLazySingleton<ExamLinkListener>(() => ExamLinkListener());
+  GetIt.instance
+      .registerLazySingleton<SubjectListener>(() => SubjectListener());
 
-  GetIt.instance.registerLazySingleton<GeminiService>(
-          () => GeminiService());
+  GetIt.instance.registerLazySingleton<GeminiService>(() => GeminiService());
 
-  GetIt.instance.registerLazySingleton<GroqService>(
-          () => GroqService(dioUtil));
-
+  GetIt.instance.registerLazySingleton<GroqService>(() => GroqService(dioUtil));
 
   GetIt.instance.registerLazySingleton<MistralServiceClient>(
       () => MistralServiceClient(mistralService));
@@ -139,13 +141,10 @@ Future<void> registerServices(
   GetIt.instance.registerLazySingleton<ChatGptService>(() => ChatGptService());
   GetIt.instance.registerLazySingleton<di.DioUtil>(() => dioUtil);
 
-  var firestoreService =
-      FirestoreService(prefs, cWatcher, FirebaseFirestore.instance, lds);
   GetIt.instance
       .registerLazySingleton<FirestoreService>(() => firestoreService);
 
-  GetIt.instance.registerLazySingleton<AuthService>(
-      () => AuthService(firebaseAuth, prefs, firestoreService));
+  GetIt.instance.registerLazySingleton<AuthService>(() => authService);
   GetIt.instance
       .registerLazySingleton<SkunkService>(() => SkunkService(dioUtil, lds));
   GetIt.instance.registerLazySingleton<ConversionService>(

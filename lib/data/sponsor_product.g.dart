@@ -10,13 +10,13 @@ SponsorProduct _$SponsorProductFromJson(Map<String, dynamic> json) =>
     SponsorProduct(
       (json['amountPerSponsoree'] as num?)?.toDouble(),
       json['title'] as String?,
-      json['periodInMonths'] as int?,
+      (json['periodInMonths'] as num?)?.toInt(),
       json['currency'] as String?,
       json['countryName'] as String?,
       json['date'] as String?,
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
       json['activeFlag'] as bool?,
-      json['studentsSponsored'] as int?,
+      (json['studentsSponsored'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$SponsorProductToJson(SponsorProduct instance) =>
@@ -35,7 +35,7 @@ Map<String, dynamic> _$SponsorProductToJson(SponsorProduct instance) =>
 OrganizationSponsorPaymentType _$OrganizationSponsorPaymentTypeFromJson(
         Map<String, dynamic> json) =>
     OrganizationSponsorPaymentType(
-      json['organizationId'] as int?,
+      (json['organizationId'] as num?)?.toInt(),
       json['organizationName'] as String?,
       json['sponsorPaymentType'] == null
           ? null

@@ -14,16 +14,16 @@ Run _$RunFromJson(Map<String, dynamic> json) => Run(
       json['object'] as String?,
       json['assistant_id'] as String?,
       json['thread_id'] as String?,
-      json['cancelled_at'] as int?,
-      json['completed_at'] as int?,
-      json['created_at'] as int?,
-      json['expires_at'] as int?,
-      json['failed_at'] as int?,
+      (json['cancelled_at'] as num?)?.toInt(),
+      (json['completed_at'] as num?)?.toInt(),
+      (json['created_at'] as num?)?.toInt(),
+      (json['expires_at'] as num?)?.toInt(),
+      (json['failed_at'] as num?)?.toInt(),
       json['required_action'] as String?,
       json['tools'],
       json['usage'],
       (json['file_ids'] as List<dynamic>).map((e) => e as String).toList(),
-      json['started_at'] as int?,
+      (json['started_at'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$RunToJson(Run instance) => <String, dynamic>{

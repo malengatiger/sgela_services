@@ -7,12 +7,12 @@ part of 'sponsoree.dart';
 // **************************************************************************
 
 Sponsoree _$SponsoreeFromJson(Map<String, dynamic> json) => Sponsoree(
-      organizationId: json['organizationId'] as int?,
-      id: json['id'] as int?,
+      organizationId: (json['organizationId'] as num?)?.toInt(),
+      id: (json['id'] as num?)?.toInt(),
       date: json['date'] as String?,
       organizationName: json['organizationName'] as String?,
       activeFlag: json['activeFlag'] as bool?,
-      sgelaUserId: json['sgelaUserId'] as int?,
+      sgelaUserId: (json['sgelaUserId'] as num?)?.toInt(),
       sgelaUserName: json['sgelaUserName'] as String?,
       sgelaCellphone: json['sgelaCellphone'] as String?,
       sgelaEmail: json['sgelaEmail'] as String?,

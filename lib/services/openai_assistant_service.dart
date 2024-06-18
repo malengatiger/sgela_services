@@ -93,11 +93,11 @@ class OpenAIAssistantService {
       var mDesc =
           'Expert Tutor and Assistant to help students and teachers with:  ${examLink.title!}';
       var inst =
-          generalInstructions.replaceAll('#SUBJECT', examLink.subject!.title!);
+          generalInstructions.replaceAll('#SUBJECT', examLink.subject!);
       AssistantFile? uploadedFile;
 
       var fileName = '${examLink.documentTitle}'.replaceAll('/', '-');
-      fileName = '${examLink.subject!.title} $fileName ${examLink.title}.pdf';
+      fileName = '${examLink.subject} $fileName ${examLink.title}.pdf';
       File? file = await downloadFile(examLink.link!, fileName);
       uploadedFile = await uploadFile(file);
       var inputAssistant = OpenAIAssistant(

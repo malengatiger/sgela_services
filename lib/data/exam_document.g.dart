@@ -9,7 +9,8 @@ part of 'exam_document.dart';
 ExamDocument _$ExamDocumentFromJson(Map<String, dynamic> json) => ExamDocument(
       json['title'] as String?,
       json['link'] as String?,
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
+      (json['year'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$ExamDocumentToJson(ExamDocument instance) =>
@@ -17,4 +18,5 @@ Map<String, dynamic> _$ExamDocumentToJson(ExamDocument instance) =>
       'title': instance.title,
       'link': instance.link,
       'id': instance.id,
+      'year': instance.year,
     };

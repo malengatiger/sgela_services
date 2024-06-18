@@ -64,12 +64,15 @@ class FirestoreService {
     List<ExamDocument> docs = [];
     var querySnapshot = await firebaseFirestore
         .collection('ExamDocument')
-        .orderBy("title")
+        .orderBy("year", descending: true)
         .get();
     for (var s in querySnapshot.docs) {
       var doc = ExamDocument.fromJson(s.data());
       docs.add(doc);
     }
+    // for (var value in docs) {
+    //   pp(value.toJson());
+    // }
     return docs;
   }
 
@@ -84,28 +87,28 @@ class FirestoreService {
     return subjects;
   }
 
-  Future<List<ExamLink>> getExamLinksByDocumentAndSubject(
-      {required int subjectId, required int documentId}) async {
-    List<ExamLink> examLinks = await getSubjectExamLinks(subjectId);
-    List<ExamLink> fList = [];
-
-    for (var value in examLinks) {
-      if (value.examDocument!.id! == documentId) {
-        fList.add(value);
-      }
-    }
-    return fList;
+  Future<List<ExamLink>> getExamLinksByYearAndSubject(
+      {required int subjectId, required int year}) async {
+    List<ExamLink> examLinks = await getSubjectExamLinks(subjectId, year);
+    return examLinks;
   }
 
-  Future<List<ExamLink>> getSubjectExamLinks(int subjectId) async {
+  Future<List<ExamLink>> getSubjectExamLinks(int subjectId, int year) async {
     List<ExamLink> examLinks = [];
-    var querySnapshot = await firebaseFirestore
-        .collection('ExamLink')
-        .where('subject.id', isEqualTo: subjectId)
-        .get();
-    for (var s in querySnapshot.docs) {
-      var subject = ExamLink.fromJson(s.data());
-      examLinks.add(subject);
+    try {
+      var querySnapshot = await firebaseFirestore
+              .collection('ExamLink')
+              .where('subjectId', isEqualTo: subjectId)
+              .where('year', isEqualTo: year)
+
+              .get();
+      for (var s in querySnapshot.docs) {
+            var subject = ExamLink.fromJson(s.data());
+            examLinks.add(subject);
+          }
+    } catch (e) {
+      pp(e);
+      throw Exception('Failed to get exam links');
     }
     return examLinks;
   }

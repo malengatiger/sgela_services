@@ -10,7 +10,7 @@ GroqChatResponse _$GroqChatResponseFromJson(Map<String, dynamic> json) =>
     GroqChatResponse(
       id: json['id'] as String?,
       object: json['object'] as String?,
-      created: json['created'] as int?,
+      created: (json['created'] as num?)?.toInt(),
       model: json['model'] as String?,
       systemFingerprint: json['system_fingerprint'],
       choices: (json['choices'] as List<dynamic>?)
@@ -33,7 +33,7 @@ Map<String, dynamic> _$GroqChatResponseToJson(GroqChatResponse instance) =>
     };
 
 Choices _$ChoicesFromJson(Map<String, dynamic> json) => Choices(
-      index: json['index'] as int?,
+      index: (json['index'] as num?)?.toInt(),
       message: json['message'] == null
           ? null
           : Message.fromJson(json['message'] as Map<String, dynamic>),
@@ -57,9 +57,9 @@ Map<String, dynamic> _$MessageToJson(Message instance) => <String, dynamic>{
     };
 
 Usage _$UsageFromJson(Map<String, dynamic> json) => Usage(
-      promptTokens: json['prompt_tokens'] as int?,
-      completionTokens: json['completion_tokens'] as int?,
-      totalTokens: json['total_tokens'] as int?,
+      promptTokens: (json['prompt_tokens'] as num?)?.toInt(),
+      completionTokens: (json['completion_tokens'] as num?)?.toInt(),
+      totalTokens: (json['total_tokens'] as num?)?.toInt(),
       promptTime: (json['prompt_time'] as num?)?.toDouble(),
       completionTime: (json['completion_time'] as num?)?.toDouble(),
       totalTime: (json['total_time'] as num?)?.toDouble(),

@@ -15,7 +15,7 @@ PaymentMethod _$PaymentMethodFromJson(Map<String, dynamic> json) =>
       json['country'] as String?,
       json['payment_flow_type'] as String?,
       (json['currencies'] as List<dynamic>).map((e) => e as String).toList(),
-      json['status'] as int?,
+      (json['status'] as num?)?.toInt(),
       json['is_cancelable'] as bool?,
       (json['payment_options'] as List<dynamic>)
           .map((e) => PaymentOption.fromJson(e as Map<String, dynamic>))
@@ -23,8 +23,8 @@ PaymentMethod _$PaymentMethodFromJson(Map<String, dynamic> json) =>
       json['is_expirable'] as bool?,
       json['is_online'] as bool?,
       json['is_refundable'] as bool?,
-      json['minimum_expiration_seconds'] as int?,
-      json['maximum_expiration_seconds'] as int?,
+      (json['minimum_expiration_seconds'] as num?)?.toInt(),
+      (json['maximum_expiration_seconds'] as num?)?.toInt(),
       json['virtual_payment_method_type'],
       json['is_virtual'] as bool?,
       json['multiple_overage_allowed'] as bool?,
@@ -98,7 +98,7 @@ AmountRangePerCurrency _$AmountRangePerCurrencyFromJson(
     AmountRangePerCurrency(
       json['currency'] as String?,
       (json['maximum_amount'] as num?)?.toDouble(),
-      json['minimum_amount'] as int?,
+      (json['minimum_amount'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$AmountRangePerCurrencyToJson(
@@ -220,8 +220,8 @@ RequiredFields _$RequiredFieldsFromJson(Map<String, dynamic> json) =>
       (json['payment_options'] as List<dynamic>?)
           ?.map((e) => PaymentOption.fromJson(e as Map<String, dynamic>))
           .toList(),
-      json['minimum_expiration_seconds'] as int?,
-      json['maximum_expiration_seconds'] as int?,
+      (json['minimum_expiration_seconds'] as num?)?.toInt(),
+      (json['maximum_expiration_seconds'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$RequiredFieldsToJson(RequiredFields instance) =>
@@ -307,7 +307,7 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
       json['id'] as String?,
       json['active'] as bool?,
       (json['attributes'] as List<dynamic>).map((e) => e as String).toList(),
-      json['created_at'] as int?,
+      (json['created_at'] as num?)?.toInt(),
       json['description'] as String?,
       json['images'] as List<dynamic>,
       json['metadata'] == null
@@ -323,7 +323,7 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
       json['statement_descriptor'] as String?,
       json['type'] as String?,
       json['unit_label'] as String?,
-      json['updated_at'] as int?,
+      (json['updated_at'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
@@ -346,10 +346,10 @@ Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
 
 PackageDimensions _$PackageDimensionsFromJson(Map<String, dynamic> json) =>
     PackageDimensions(
-      json['height'] as int?,
-      json['length'] as int?,
-      json['weight'] as int?,
-      json['width'] as int?,
+      (json['height'] as num?)?.toInt(),
+      (json['length'] as num?)?.toInt(),
+      (json['weight'] as num?)?.toInt(),
+      (json['width'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$PackageDimensionsToJson(PackageDimensions instance) =>
@@ -391,7 +391,7 @@ PlanRequest _$PlanRequestFromJson(Map<String, dynamic> json) => PlanRequest(
           ? null
           : TransformUsage.fromJson(
               json['transform_usage'] as Map<String, dynamic>),
-      json['trial_period_days'] as int?,
+      (json['trial_period_days'] as num?)?.toInt(),
       json['usage_type'] as String?,
     );
 
@@ -444,12 +444,12 @@ Map<String, dynamic> _$PlanListResponseToJson(PlanListResponse instance) =>
 Plan _$PlanFromJson(Map<String, dynamic> json) => Plan(
       json['id'] as String?,
       json['aggregate_usage'] as String?,
-      json['amount'] as int?,
+      (json['amount'] as num?)?.toInt(),
       json['billing_scheme'] as String?,
-      json['created_at'] as int?,
+      (json['created_at'] as num?)?.toInt(),
       json['currency'] as String?,
       json['interval'] as String?,
-      json['interval_count'] as int?,
+      (json['interval_count'] as num?)?.toInt(),
       json['metadata'] == null
           ? null
           : Metadata.fromJson(json['metadata'] as Map<String, dynamic>),
@@ -465,7 +465,7 @@ Plan _$PlanFromJson(Map<String, dynamic> json) => Plan(
           ? null
           : TransformUsage.fromJson(
               json['transform_usage'] as Map<String, dynamic>),
-      json['trial_period_days'] as int?,
+      (json['trial_period_days'] as num?)?.toInt(),
       json['usage_type'] as String?,
       json['active'] as bool?,
     );
@@ -491,9 +491,9 @@ Map<String, dynamic> _$PlanToJson(Plan instance) => <String, dynamic>{
     };
 
 Tier _$TierFromJson(Map<String, dynamic> json) => Tier(
-      json['amount'] as int?,
+      (json['amount'] as num?)?.toInt(),
       json['up_to'] as String?,
-      json['flat_amount'] as int?,
+      (json['flat_amount'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$TierToJson(Tier instance) => <String, dynamic>{
@@ -504,7 +504,7 @@ Map<String, dynamic> _$TierToJson(Tier instance) => <String, dynamic>{
 
 TransformUsage _$TransformUsageFromJson(Map<String, dynamic> json) =>
     TransformUsage(
-      json['divide_by'] as int?,
+      (json['divide_by'] as num?)?.toInt(),
       json['round'] as String?,
     );
 
@@ -564,7 +564,7 @@ Customer _$CustomerFromJson(Map<String, dynamic> json) => Customer(
           : PaymentMethods.fromJson(
               json['payment_methods'] as Map<String, dynamic>),
       json['subscriptions'],
-      json['created_at'] as int?,
+      (json['created_at'] as num?)?.toInt(),
       json['metadata'] == null
           ? null
           : Metadata.fromJson(json['metadata'] as Map<String, dynamic>),
@@ -597,7 +597,7 @@ PaymentMethods _$PaymentMethodsFromJson(Map<String, dynamic> json) =>
           .map((e) => PaymentMethodStub.fromJson(e as Map<String, dynamic>))
           .toList(),
       json['has_more'] as bool?,
-      json['total_count'] as int?,
+      (json['total_count'] as num?)?.toInt(),
       json['url'] as String?,
     );
 
@@ -645,7 +645,7 @@ Map<String, dynamic> _$PaymentMethodStubToJson(PaymentMethodStub instance) =>
 
 CheckoutRequest _$CheckoutRequestFromJson(Map<String, dynamic> json) =>
     CheckoutRequest(
-      json['amount'] as int?,
+      (json['amount'] as num?)?.toInt(),
       json['complete_payment_url'] as String?,
       json['country'] as String?,
       json['currency'] as String?,
@@ -660,7 +660,7 @@ CheckoutRequest _$CheckoutRequestFromJson(Map<String, dynamic> json) =>
       (json['payment_method_types_include'] as List<dynamic>)
           .map((e) => e as String)
           .toList(),
-      json['expiration'] as int?,
+      (json['expiration'] as num?)?.toInt(),
       json['cancel_checkout_url'] as String?,
       json['complete_checkout_url'] as String?,
       json['payment_method_types_exclude'] as List<dynamic>,
@@ -716,14 +716,14 @@ Checkout _$CheckoutFromJson(Map<String, dynamic> json) => Checkout(
       json['merchant_alias'] as String?,
       json['merchant_terms'],
       json['merchant_privacy_policy'],
-      json['page_expiration'] as int?,
+      (json['page_expiration'] as num?)?.toInt(),
       json['redirect_url'] as String?,
       json['merchant_main_button'] as String?,
       json['cancel_checkout_url'] as String?,
       json['complete_checkout_url'] as String?,
       json['country'] as String?,
       json['currency'] as String?,
-      json['amount'] as int?,
+      (json['amount'] as num?)?.toInt(),
       json['payment'] == null
           ? null
           : Payment.fromJson(json['payment'] as Map<String, dynamic>),
@@ -739,7 +739,7 @@ Checkout _$CheckoutFromJson(Map<String, dynamic> json) => Checkout(
           ? null
           : CustomElements.fromJson(
               json['custom_elements'] as Map<String, dynamic>),
-      json['timestamp'] as int?,
+      (json['timestamp'] as num?)?.toInt(),
       json['payment_expiration'],
       json['cart_items'] as List<dynamic>,
       json['escrow'],
@@ -894,8 +894,8 @@ Map<String, dynamic> _$FieldsToJson(Fields instance) => <String, dynamic>{
 
 Payment _$PaymentFromJson(Map<String, dynamic> json) => Payment(
       json['id'] as String?,
-      json['amount'] as int?,
-      json['original_amount'] as int?,
+      (json['amount'] as num?)?.toInt(),
+      (json['original_amount'] as num?)?.toInt(),
       json['is_partial'] as bool?,
       json['currency_code'] as String?,
       json['country_code'] as String?,
@@ -909,10 +909,10 @@ Payment _$PaymentFromJson(Map<String, dynamic> json) => Payment(
           : PaymentMethodData.fromJson(
               json['payment_method_data'] as Map<String, dynamic>),
       json['auth_code'],
-      json['expiration'] as int?,
+      (json['expiration'] as num?)?.toInt(),
       json['captured'] as bool?,
       json['refunded'] as bool?,
-      json['refunded_amount'] as int?,
+      (json['refunded_amount'] as num?)?.toInt(),
       json['receipt_email'] as String?,
       json['redirect_url'] as String?,
       json['complete_payment_url'] as String?,
@@ -922,14 +922,14 @@ Payment _$PaymentFromJson(Map<String, dynamic> json) => Payment(
       json['address'],
       json['statement_descriptor'] as String?,
       json['transaction_id'] as String?,
-      json['created_at'] as int?,
+      (json['created_at'] as num?)?.toInt(),
       json['metadata'] == null
           ? null
           : Metadata.fromJson(json['metadata'] as Map<String, dynamic>),
       json['failure_code'] as String?,
       json['failure_message'] as String?,
       json['paid'] as bool?,
-      json['paid_at'] as int?,
+      (json['paid_at'] as num?)?.toInt(),
       json['dispute'],
       json['refunds'],
       json['order'],
@@ -1066,9 +1066,9 @@ Map<String, dynamic> _$StepToJson(Step instance) => <String, dynamic>{
 
 EWallet _$EWalletFromJson(Map<String, dynamic> json) => EWallet(
       json['ewallet_id'] as String?,
-      json['amount'] as int?,
+      (json['amount'] as num?)?.toInt(),
       (json['percent'] as num?)?.toDouble(),
-      json['refunded_amount'] as int?,
+      (json['refunded_amount'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$EWalletToJson(EWallet instance) => <String, dynamic>{
@@ -1110,7 +1110,7 @@ PaymentLinkRequest _$PaymentLinkRequestFromJson(Map<String, dynamic> json) =>
     PaymentLinkRequest(
       json['country'] as String?,
       json['currency'] as String?,
-      json['amount'] as int?,
+      (json['amount'] as num?)?.toInt(),
       json['merchantReferenceId'] as String?,
       json['language'] as String?,
       json['checkout'] == null
@@ -1130,7 +1130,7 @@ Map<String, dynamic> _$PaymentLinkRequestToJson(PaymentLinkRequest instance) =>
 
 PaymentLink _$PaymentLinkFromJson(Map<String, dynamic> json) => PaymentLink(
       json['id'] as String?,
-      json['amount'] as int?,
+      (json['amount'] as num?)?.toInt(),
       json['currency'] as String?,
       json['country'] as String?,
       json['amount_is_editable'] as bool?,
@@ -1152,7 +1152,7 @@ PaymentLink _$PaymentLinkFromJson(Map<String, dynamic> json) => PaymentLink(
       json['merchant_alias'] as String?,
       json['merchant_terms'] as String?,
       json['merchant_privacy_policy'] as String?,
-      json['page_expiration'] as int?,
+      (json['page_expiration'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$PaymentLinkToJson(PaymentLink instance) =>

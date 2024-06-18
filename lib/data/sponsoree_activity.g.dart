@@ -8,21 +8,21 @@ part of 'sponsoree_activity.dart';
 
 SponsoreeActivity _$SponsoreeActivityFromJson(Map<String, dynamic> json) =>
     SponsoreeActivity(
-      organizationId: json['organizationId'] as int?,
-      id: json['id'] as int?,
+      organizationId: (json['organizationId'] as num?)?.toInt(),
+      id: (json['id'] as num?)?.toInt(),
       date: json['date'] as String?,
       organizationName: json['organizationName'] as String?,
-      totalTokens: json['totalTokens'] as int?,
-      elapsedTimeInSeconds: json['elapsedTimeInSeconds'] as int?,
+      totalTokens: (json['totalTokens'] as num?)?.toInt(),
+      elapsedTimeInSeconds: (json['elapsedTimeInSeconds'] as num?)?.toInt(),
       aiModel: json['aiModel'] as String?,
-      sponsoreeId: json['sponsoreeId'] as int?,
-      userId: json['userId'] as int?,
+      sponsoreeId: (json['sponsoreeId'] as num?)?.toInt(),
+      userId: (json['userId'] as num?)?.toInt(),
       sponsoreeName: json['sponsoreeName'] as String?,
       sponsoreeEmail: json['sponsoreeEmail'] as String?,
       sponsoreeCellphone: json['sponsoreeCellphone'] as String?,
-      examLinkId: json['examLinkId'] as int?,
+      examLinkId: (json['examLinkId'] as num?)?.toInt(),
       examTitle: json['examTitle'] as String?,
-      subjectId: json['subjectId'] as int?,
+      subjectId: (json['subjectId'] as num?)?.toInt(),
       subject: json['subject'] as String?,
     );
 

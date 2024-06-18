@@ -10,7 +10,7 @@ GroqRequest _$GroqRequestFromJson(Map<String, dynamic> json) => GroqRequest(
       content: json['content'] as String?,
       role: json['role'] as String?,
       name: json['name'] as String?,
-      seed: json['seed'] as int?,
+      seed: (json['seed'] as num?)?.toInt(),
       temperature: (json['temperature'] as num?)?.toDouble(),
       topP: (json['top_p'] as num?)?.toDouble(),
       stop: json['stop'] as String?,

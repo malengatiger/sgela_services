@@ -7,10 +7,12 @@ part of 'image_bytes.dart';
 // **************************************************************************
 
 ImageBytes _$ImageBytesFromJson(Map<String, dynamic> json) => ImageBytes(
-      json['examLinkId'] as int?,
-      json['id'] as int?,
-      (json['bytes'] as List<dynamic>?)?.map((e) => e as int).toList(),
-      json['imageIndex'] as int?,
+      (json['examLinkId'] as num?)?.toInt(),
+      (json['id'] as num?)?.toInt(),
+      (json['bytes'] as List<dynamic>?)
+          ?.map((e) => (e as num).toInt())
+          .toList(),
+      (json['imageIndex'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$ImageBytesToJson(ImageBytes instance) =>

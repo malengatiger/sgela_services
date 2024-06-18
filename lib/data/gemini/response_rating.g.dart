@@ -8,11 +8,11 @@ part of 'response_rating.dart';
 
 ResponseRating _$ResponseRatingFromJson(Map<String, dynamic> json) =>
     ResponseRating(
-      json['examLinkId'] as int?,
-      json['rating'] as int?,
-      json['id'] as int?,
+      (json['examLinkId'] as num?)?.toInt(),
+      (json['rating'] as num?)?.toInt(),
+      (json['id'] as num?)?.toInt(),
       json['date'] as String?,
-      json['subjectId'] as int?,
+      (json['subjectId'] as num?)?.toInt(),
       json['subjectTitle'] as String?,
       json['responseText'] as String?,
     );

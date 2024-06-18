@@ -7,7 +7,7 @@ part of 'youtube_data.dart';
 // **************************************************************************
 
 YouTubeData _$YouTubeDataFromJson(Map<String, dynamic> json) => YouTubeData(
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
       json['title'] as String?,
       json['description'] as String?,
       json['channelId'] as String?,
@@ -19,7 +19,7 @@ YouTubeData _$YouTubeDataFromJson(Map<String, dynamic> json) => YouTubeData(
       json['thumbnailHigh'] as String?,
       json['thumbnailMedium'] as String?,
       json['thumbnailDefault'] as String?,
-      json['subjectId'] as int?,
+      (json['subjectId'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$YouTubeDataToJson(YouTubeData instance) =>

@@ -15,13 +15,13 @@ OpenAIAssistant _$OpenAIAssistantFromJson(Map<String, dynamic> json) =>
           ?.map((e) => Tools.fromJson(e as Map<String, dynamic>))
           .toList(),
       model: json['model'] as String?,
-      subjectId: json['subjectId'] as int?,
+      subjectId: (json['subjectId'] as num?)?.toInt(),
       date: json['date'] as String?,
       fileIds:
           (json['file_ids'] as List<dynamic>).map((e) => e as String).toList(),
       metadata: json['metadata'],
       description: json['description'] as String?,
-      examLinkId: json['examLinkId'] as int?,
+      examLinkId: (json['examLinkId'] as num?)?.toInt(),
       examLinkTitle: json['examLinkTitle'] as String?,
       subjectTitle: json['subjectTitle'] as String?,
     );

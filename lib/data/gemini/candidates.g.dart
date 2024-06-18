@@ -11,7 +11,7 @@ MyCandidates _$MyCandidatesFromJson(Map<String, dynamic> json) => MyCandidates(
           ? null
           : MyContent.fromJson(json['content'] as Map<String, dynamic>),
       finishReason: json['finishReason'] as String?,
-      index: json['index'] as int?,
+      index: (json['index'] as num?)?.toInt(),
       safetyRatings: (json['safetyRatings'] as List<dynamic>?)
           ?.map((e) => SafetyRatings.fromJson(e as Map<String, dynamic>))
           .toList(),

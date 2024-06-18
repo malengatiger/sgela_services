@@ -9,15 +9,15 @@ part of 'run_details.dart';
 RunDetails _$RunDetailsFromJson(Map<String, dynamic> json) => RunDetails(
       id: json['id'] as String?,
       object: json['object'] as String?,
-      createdAt: json['created_at'] as int?,
+      createdAt: (json['created_at'] as num?)?.toInt(),
       assistantId: json['assistant_id'] as String?,
       threadId: json['thread_id'] as String?,
       status: json['status'] as String?,
-      startedAt: json['started_at'] as int?,
+      startedAt: (json['started_at'] as num?)?.toInt(),
       expiresAt: json['expires_at'],
       cancelledAt: json['cancelled_at'],
       failedAt: json['failed_at'],
-      completedAt: json['completed_at'] as int?,
+      completedAt: (json['completed_at'] as num?)?.toInt(),
       lastError: json['last_error'],
       model: json['model'] as String?,
       instructions: json['instructions'],
@@ -74,9 +74,9 @@ Map<String, dynamic> _$MetadataToJson(Metadata instance) => <String, dynamic>{
     };
 
 Usage _$UsageFromJson(Map<String, dynamic> json) => Usage(
-      promptTokens: json['prompt_tokens'] as int?,
-      completionTokens: json['completion_tokens'] as int?,
-      totalTokens: json['total_tokens'] as int?,
+      promptTokens: (json['prompt_tokens'] as num?)?.toInt(),
+      completionTokens: (json['completion_tokens'] as num?)?.toInt(),
+      totalTokens: (json['total_tokens'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$UsageToJson(Usage instance) => <String, dynamic>{

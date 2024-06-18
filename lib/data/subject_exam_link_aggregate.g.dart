@@ -9,9 +9,9 @@ part of 'subject_exam_link_aggregate.dart';
 SubjectExamLinkAggregate _$SubjectExamLinkAggregateFromJson(
         Map<String, dynamic> json) =>
     SubjectExamLinkAggregate(
-      subjectId: json['subjectId'] as int?,
+      subjectId: (json['subjectId'] as num?)?.toInt(),
       title: json['title'] as String?,
-      examLinks: json['examLinks'] as int?,
+      examLinks: (json['examLinks'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$SubjectExamLinkAggregateToJson(

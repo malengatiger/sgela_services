@@ -10,8 +10,8 @@ AssistantFile _$AssistantFileFromJson(Map<String, dynamic> json) =>
     AssistantFile(
       id: json['id'] as String?,
       object: json['object'] as String?,
-      bytes: json['bytes'] as int?,
-      createdAt: json['created_at'] as int?,
+      bytes: (json['bytes'] as num?)?.toInt(),
+      createdAt: (json['created_at'] as num?)?.toInt(),
       filename: json['filename'] as String?,
       purpose: json['purpose'] as String?,
       statusDetails: json['status_details'] as String?,

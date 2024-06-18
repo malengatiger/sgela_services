@@ -10,7 +10,7 @@ Organization _$OrganizationFromJson(Map<String, dynamic> json) => Organization(
       name: json['name'] as String?,
       email: json['email'] as String?,
       cellphone: json['cellphone'] as String?,
-      id: json['id'] as int?,
+      id: (json['id'] as num?)?.toInt(),
       date: json['date'] as String?,
       country: json['country'] == null
           ? null
@@ -28,7 +28,7 @@ Organization _$OrganizationFromJson(Map<String, dynamic> json) => Organization(
     )
       ..websiteUrl = json['websiteUrl'] as String?
       ..brandingElapsedTimeInSeconds =
-          json['brandingElapsedTimeInSeconds'] as int?;
+          (json['brandingElapsedTimeInSeconds'] as num?)?.toInt();
 
 Map<String, dynamic> _$OrganizationToJson(Organization instance) =>
     <String, dynamic>{
