@@ -14,6 +14,7 @@ import 'package:sgela_services/services/mistral_client_service.dart';
 import 'package:sgela_services/services/openai_assistant_service.dart';
 import 'package:sgela_services/services/rapyd_payment_service.dart';
 import 'package:sgela_services/services/repository.dart';
+import 'package:sgela_services/services/summarizer_service.dart';
 import 'package:sgela_services/sgela_util/exam_page_listener.dart';
 import 'package:sgela_services/sgela_util/prefs.dart';
 import 'package:sgela_services/sgela_util/registration_stream_handler.dart';
@@ -79,6 +80,9 @@ Future<void> registerServices(
 
   GetIt.instance.registerLazySingleton<ExamExtractorService>(
       () => ExamExtractorService(dioUtil, authService));
+
+  GetIt.instance.registerLazySingleton<SummarizerService>(
+          () => SummarizerService(dioUtil: dioUtil, authService: authService));
 
   GetIt.instance.registerLazySingleton<OpenAIAssistantService>(
       () => OpenAIAssistantService(dioUtil));

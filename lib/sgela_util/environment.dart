@@ -8,7 +8,7 @@ class ChatbotEnvironment {
   static const  _ipNormal = '192.168.88.252';
   static const bool isFibreOK = true;
   static const _devSkunkUrl = 'http://${isFibreOK? _ipNormal: _ipFibreDown}:8080/skunk-service/';
-  static const _prodSkunkUrl = 'https://skunkworks-backend-service-knzs6eczwq-nw.a.run.app/';
+  static const _prodSkunkUrl = 'https://sgela-service-x-ajtawuiiiq-ew.a.run.app/';
 
   //TODO - refresh url links after Skunk deployment
 
